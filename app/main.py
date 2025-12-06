@@ -55,14 +55,22 @@ except Exception as e:
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://via.placeholder.com/150x50?text=PKO+Mock+Logo", use_container_width=True) # Replace with real logo if available
+    # Logo handling
+    try:
+        logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'logo', 'logo-pko-bank-polski.svg')
+        if os.path.exists(logo_path):
+            st.image(logo_path, use_container_width=True)
+        else:
+            st.warning(f"Logo not found at {logo_path}")
+    except Exception as e:
+        st.error(f"Logo error: {e}")
     st.title("S&T Dashboard")
     
     # --- TIME SLIDER (New!) ---
     min_year = int(df_all['Year'].min())
     max_year = int(df_all['Year'].max())
     
-    selected_year = st.slider("Wybierz Rok:", min_value=min_year, max_value=max_year, value=max_year)
+    selected_year = st.slider("Wybierz Rok:", min_value=min_year, max_value=max_year, value=2024)
     
     st.divider()
     
@@ -78,8 +86,23 @@ with st.sidebar:
         w_growth = st.slider("Wzrost (Dynamika)", 0.0, 10.0, 4.0, 0.5)
         w_profit = st.slider("Zyskowność (Marża)", 0.0, 10.0, 6.0, 0.5)
         w_safety = st.slider("Bezpieczeństwo (Dług/Płynność)", 0.0, 10.0, 3.0, 0.5)
+        st.divider()
+        kill_switch_limit = st.slider("⚠️ Próg upadłości (Kill Switch %)", 0.0, 10.0, 4.5, 0.1, help="Branże powyżej tej wartości otrzymają status CRITICAL.")
         
     st.divider()
+    
+    # --- DYNAMIC STATUS RECALCULATION ---
+    # Overwrite Status based on new Kill Switch Limit
+    def recalc_status(row):
+        # 1. Check Kill Switch
+        if row.get('Bankruptcy_Rate', 0) > kill_switch_limit:
+            return 'CRITICAL'
+        # 2. Check Opportunity (Mock thresholds based on scores)
+        if row.get('Stability_Score', 0) > 60 and row.get('Transformation_Score', 0) > 60:
+            return 'OPPORTUNITY'
+        return 'Neutral'
+        
+    df['Status'] = df.apply(recalc_status, axis=1)
 
     # --- LEVEL OF DETAIL ---
     level_map = {

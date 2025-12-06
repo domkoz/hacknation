@@ -42,20 +42,22 @@ pip install -r requirements.txt
 ```
 
 ### Krok 2: Konfiguracja Lokalnego AI (Ollama)
-Aplikacja korzysta z modelu `gemma:2b` (Google), który jest lekki i szybki.
+Aplikacja korzysta z modelu `gemma2` (Google Gemma 2 9B Instruct), który zapewnia wysoką jakość analizy w języku polskim.
+
 ```bash
 # Zainstaluj Ollama (macOS)
 brew install ollama
 brew services start ollama
 
 # Pobierz model
-ollama pull gemma:2b
+ollama pull gemma2
 ```
 
 ### Krok 3: Uruchomienie Aplikacji
 ```bash
 streamlit run app/main.py
 ```
+> **Tip:** W panelu bocznym ("Konfiguracja Modelu S&T") możesz dostosować "Kill Switch" (próg upadłości - domyślnie **4.5%**) oraz wagi modelu.
 
 ---
 

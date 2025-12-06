@@ -102,12 +102,12 @@ Moduł predykcyjny oblicza linię trendu dla przychodów.
 
 ## ⚠️ Kill Switch (Bezpiecznik)
 
-System posiada wbudowany mechanizm bezpieczeństwa.
-Jeśli:
-1.  `Bankruptcy Rate` > 2.5% (Wysokie ryzyko systemowe)
-2.  `Cash Ratio` < 0.1 (Brak płynności)
+System posiada wbudowany mechanizm bezpieczeństwa z konfigurowalnym progiem.
+**Domyślna konfiguracja:**
+*   `Kill Switch Threshold`: **4.5%** (Liczba bankructw / Liczbę firm).
+    *   Wartość ta jest konfigurowalna w UI (Slider: 0.0% - 10.0%).
 
-Wtedy:
+Jeśli `Bankruptcy Rate` > Threshold:
 *   Branża otrzymuje status **CRITICAL**.
 *   Kolor na wykresie zmienia się na Czerwony.
 *   Rekomendacja AI automatycznie nadpisana lub silnie sugerująca "REJECT".
