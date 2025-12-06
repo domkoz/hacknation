@@ -4,6 +4,15 @@ import numpy as np
 import plotly.graph_objects as go
 import json
 import os
+import utils # Local import
+import charts # Local import
+
+# --- CONSTANTS ---
+color_map = {
+    'CRITICAL': '#ff4b4b',
+    'OPPORTUNITY': '#2ecc71',
+    'Neutral': '#3498db'
+}
 
 # --- PAGE CONFIG ---
 st.set_page_config(
@@ -14,41 +23,17 @@ st.set_page_config(
 )
 
 # --- LOAD ASSETS ---
-def load_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
 try:
     # Adjust path if running locally from root
     css_path = os.path.join(os.path.dirname(__file__), 'assets/style.css')
-    load_css(css_path)
+    utils.load_css(css_path)
 except FileNotFoundError:
     st.warning("CSS file not found.")
 
 # --- LOAD DATA ---
-@st.cache_data
-def load_data():
-    # Adjust path
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_path = os.path.join(base_path, 'data')
-    # Use REAL data now
-    processed_path = os.path.join(data_path, 'processed_real_index.csv')
-    return pd.read_csv(processed_path)
-
-# @st.cache_data (Disabled to force reload of real debates)
-def load_debates():
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    assets_path = os.path.join(base_path, 'app', 'assets')
-    json_path = os.path.join(assets_path, 'ai_debates.json')
-    try:
-        with open(json_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
-
 try:
-    df_all = load_data()
-    debates = load_debates()
+    df_all = utils.load_data()
+    debates = utils.load_debates()
 except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
@@ -181,31 +166,25 @@ with st.sidebar:
     # 2. Profitability: Combine Profitability (%) and Net_Profit_Margin (Higher is better)
     # 3. Safety: Combine Cash_Ratio (High is better) - Debt_to_Revenue (Low is better) - Bankruptcy_Rate (Low is better)
     
-    # Helper for MinMax Normalization (0-1)
-    def normalize(series):
-        if series.max() == series.min():
-            return pd.Series(0.5, index=series.index) # Neutral if no variance
-        return (series - series.min()) / (series.max() - series.min())
-
     if not filtered_df.empty:
         # 1. Growth
-        norm_growth = normalize(filtered_df['Dynamics_YoY'])
+        norm_growth = utils.normalize(filtered_df['Dynamics_YoY'])
         
         # 2. Profitability (Mix of Share of Profitable Entities and Net Margin)
         # Net Margin can be negative. Normalize carefully.
-        norm_margin = normalize(filtered_df['Net_Profit_Margin'])
-        norm_prof_share = normalize(filtered_df['Profitability'])
+        norm_margin = utils.normalize(filtered_df['Net_Profit_Margin'])
+        norm_prof_share = utils.normalize(filtered_df['Profitability'])
         norm_profitability = (norm_margin + norm_prof_share) / 2
         
         # 3. Safety
         # Cash Ratio -> Maximize
-        norm_cash = normalize(filtered_df['Cash_Ratio'])
+        norm_cash = utils.normalize(filtered_df['Cash_Ratio'])
         
         # Debt Ratio -> Minimize (1 - Norm)
-        norm_debt = 1 - normalize(filtered_df['Debt_to_Revenue'])
+        norm_debt = 1 - utils.normalize(filtered_df['Debt_to_Revenue'])
         
         # Risk -> Minimize (1 - Norm)
-        norm_risk = 1 - normalize(filtered_df['Bankruptcy_Rate']) # or Risk_Per_1000
+        norm_risk = 1 - utils.normalize(filtered_df['Bankruptcy_Rate']) # or Risk_Per_1000
         
         norm_safety = (norm_cash + norm_debt + norm_risk) / 3
         
@@ -292,7 +271,6 @@ st.markdown("### `System Diagnostyki Branżowej AI PKO BP` (Real Data)")
 display_aggregates(filtered_df, title=f"Agregat dla: {selected_level_label} | {selected_sector}")
 
 col_main, col_details = st.columns([2, 1])
-
 # --- RISK VIEW LOGIC ---
 if view_mode == "Analiza Ryzyka (Upadłości)":
     st.markdown("### 🛡️ Radar Ryzyka: Upadłość vs Dynamika")
@@ -321,62 +299,7 @@ if view_mode == "Analiza Ryzyka (Upadłości)":
     # Cap Leverage for visualization (e.g. at 200%) to avoid outliers blowing up scale
     filtered_df['Leverage_Vis'] = filtered_df['Leverage_Ratio'].clip(upper=5.0)
     
-    fig_risk = go.Figure()
-    
-    # Scatter Trace
-    fig_risk.add_trace(go.Scatter(
-        x=filtered_df['Dynamics_YoY'] * 100, # Percent
-        y=filtered_df['Bankruptcy_Rate'],
-        mode='markers',
-        text=filtered_df['Industry_Name'],
-        customdata=np.stack((
-            filtered_df['Revenue'], 
-            filtered_df['Total_Debt'], 
-            filtered_df['Net_Profit'],
-            filtered_df['PKD_Code']
-        ), axis=-1),
-        marker=dict(
-            size=np.sqrt(filtered_df['Revenue']) / np.sqrt(filtered_df['Revenue'].max()) * 50 + 10,
-            color=filtered_df['Bankruptcy_Rate'], # Color by Risk itself? Or Leverage?
-            # Let's Color by Risk (Red=High Risk)
-            colorscale='RdYlGn_r', # Red-Yellow-Green REVERSED (High Risk = Red)
-            showscale=True,
-            colorbar=dict(title="Wskaźnik Upadłości (%)"),
-            line=dict(width=1, color='DarkSlateGrey')
-        ),
-        hovertemplate="<b>%{text}</b><br>" +
-                      "PKD: %{customdata[3]}<br>" +
-                      "Upadłości: %{y:.2f}%<br>" +
-                      "Dynamika: %{x:+.1f}%<br>" +
-                      "Przychody: %{customdata[0]:,.0f} mln<br>" +
-                      "Dług: %{customdata[1]:,.0f} mln<extra></extra>"
-    ))
-    
-    # Quadrants / Zones
-    # Critical Zone: Dynamics < 0 AND Bankruptcy > 1.0%
-    fig_risk.add_shape(type="rect",
-        x0=-100, y0=1.0, x1=0, y1=100,
-        line=dict(color="Red", width=1, dash="dash"),
-        fillcolor="rgba(255, 0, 0, 0.1)"
-    )
-    fig_risk.add_annotation(
-        x=-5, y=filtered_df['Bankruptcy_Rate'].max(),
-        text="STREFA KRYTYCZNA",
-        showarrow=False,
-        font=dict(color="red", size=14)
-    )
-    
-    fig_risk.update_layout(
-        xaxis_title="Dynamika Przychodów R/R (%)",
-        yaxis_title="Wskaźnik Upadłości (%)",
-        xaxis=dict(zeroline=True, zerolinecolor='white'),
-        yaxis=dict(zeroline=True, zerolinecolor='white'),
-        height=600,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="white")
-    )
-    
+    fig_risk = charts.create_risk_radar_chart(filtered_df)
     st.plotly_chart(fig_risk, use_container_width=True)
     
     # RED ZONE TABLE
@@ -410,62 +333,10 @@ if view_mode == "Analiza Ryzyka (Upadłości)":
 
 # --- CHART (LEFT) ---
 with col_main:
-    # Create Bubble Chart using Plotly Graph Objects for more control
-    fig = go.Figure()
-
-    # Color mapping for Status
-    color_map = {
-        'CRITICAL': '#ff4b4b',
-        'OPPORTUNITY': '#2ecc71',
-        'Neutral': '#3498db'
-    }
-
-    # Add traces for different statuses to allow legend
-    for status in df['Status'].unique():
-        subset = filtered_df[filtered_df['Status'] == status]
-        if subset.empty: continue
-        
-        # Scale size logic (Real revenue is HUGE, need log or sqrt scaling for visual sanity)
-        # Or just normalization.
-        # Let's use simple scaling factor.
-        max_rev = df_all['Revenue'].max()
-        if max_rev == 0: max_rev = 1
-        
-        fig.add_trace(go.Scatter(
-            x=subset['Stability_Score'],
-            y=subset['Transformation_Score'],
-            mode='markers', # Remove text for performance, show on hover
-            text=subset['Industry_Name'], 
-            marker=dict(
-                size=np.sqrt(subset['Revenue'] / max_rev) * 100 + 5, # Sqrt scaling
-                color=color_map.get(status, '#888'),
-                opacity=0.8,
-                line=dict(width=1, color='white')
-            ),
-            name=status,
-            customdata=subset[['Industry_Name', 'Revenue', 'PKD_Code', 'Profitability']],
-            hovertemplate="<b>%{customdata[0]}</b><br>" +
-                          "PKD: %{customdata[2]}<br>" +
-                          "Stability: %{x:.1f}<br>" +
-                          "Transformation: %{y:.1f}<br>" +
-                          "Revenue: %{customdata[1]:,.0f} mln PLN<extra></extra>"
-        ))
-        
-    # Draw Quadrant Lines
-    fig.add_hline(y=50, line_dash="dash", line_color="gray", annotation_text="Transformation Threshold")
-    fig.add_vline(x=50, line_dash="dash", line_color="gray", annotation_text="Stability Threshold")
-
-    fig.update_layout(
-        xaxis_title="Stability Score (Fundament Finansowy)",
-        yaxis_title="Transformation Score (Inwestycje + ArXiv AI)",
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),
-        height=700,
-        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="white")
-    )
+    # Calculate max revenue for global scaling
+    max_rev_global = df_all['Revenue'].max()
+    
+    fig = charts.create_main_bubble_chart(filtered_df, max_rev_global)
 
     # Display Chart
     st.plotly_chart(fig, use_container_width=True, key="bubble_chart", on_select="rerun", selection_mode="points")
@@ -742,6 +613,8 @@ while current_selection_pkd and level_depth < max_depth:
             ))
             
             fig_sub.update_layout(
+                xaxis_title="Stability Score",
+                yaxis_title="Transformation Score",
                 xaxis=dict(autorange=True, showgrid=False, zeroline=False),
                 yaxis=dict(autorange=True, showgrid=False, zeroline=False),
                 height=300,
@@ -768,9 +641,20 @@ while current_selection_pkd and level_depth < max_depth:
                 # We used 1 trace here!
                 
                 try:
+                    p = sub_sel[0]
                     next_pkd_code = children_df.iloc[p['point_index']]['PKD_Code']
+                    child_row = children_df.iloc[p['point_index']]
                     next_selection = next_pkd_code
-                except:
+                    
+                    # --- DETAILS INLINE ---
+                    with st.expander(f"📊 Detale: {child_row['Industry_Name']}", expanded=True):
+                        c1, c2, c3, c4 = st.columns(4)
+                        c1.markdown(f"**Dynamika:**<br>{utils.color_val(child_row.get('Dynamics_YoY',0)*100, is_percent=True)}", unsafe_allow_html=True)
+                        c2.markdown(f"**Marża:**<br>{utils.color_val(child_row.get('Net_Profit_Margin',0), is_percent=False)}%", unsafe_allow_html=True)
+                        c3.markdown(f"**Upadłość:**<br>{utils.color_val(child_row.get('Bankruptcy_Rate',0), inverse=True)}%", unsafe_allow_html=True)
+                        c4.markdown(f"**Przychody:**<br>{child_row.get('Revenue',0):,.0f} mln", unsafe_allow_html=True)
+                except Exception as e:
+                    # st.error(f"Selection error: {e}")
                     pass
         else:
             st.write("Brak podkategorii.")
