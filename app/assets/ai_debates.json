@@ -1,77 +1,77 @@
 {
   "62": {
-    "CRO_Opinion": "Finansowo Oprogramowanie i doradztwo w zakresie informatyki wygląda stabilnie, choć martwi mnie zależność od cen energii.",
-    "CSO_Opinion": "To jest nasz czarny koń! Oprogramowanie i doradztwo w zakresie informatyki idealnie wpisuje się w megatrendy. BUY!",
+    "CRO_Opinion": "Mimo wszystko, sektor IT jest wrażliwy na spowolnienie gospodarcze. Musimy zachować ostrożność i monitorować poziom zadłużenia potencjalnych inwestycji.",
+    "CSO_Opinion": "Sektor oprogramowania i doradztwa IT oferuje ogromny potencjał wzrostu, szczególnie w obszarach takich jak sztuczna inteligencja i cyberbezpieczeństwo. To doskonała okazja dla naszego banku!",
     "Final_Verdict": "BUY"
   },
   "41": {
-    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Roboty budowlane związane ze wznoszeniem budynków ma fatalną płynność. STOP.",
-    "CSO_Opinion": "Może i jest ryzyko, ale Roboty budowlane związane ze wznoszeniem budynków przechodzi restrukturyzację. Warto obserwować.",
+    "CRO_Opinion": "Biorąc pod uwagę naszą krytyczną sytuację i niską rentowność, inwestycje w roboty budowlane są zbyt ryzykowne. Obawiam się, że dodatkowe zadłużenie pogłębi nasze problemy w obliczu potencjalnej recesji.",
+    "CSO_Opinion": "Rozumiem obawy, ale roboty budowlane to przyszłość i klucz do zwiększenia efektywności. Dzięki nim możemy obniżyć koszty i zyskać przewagę konkurencyjną, co w dłuższej perspektywie poprawi naszą rentowność.",
     "Final_Verdict": "REJECT"
   },
   "55": {
-    "CRO_Opinion": "Koszty stałe w Zakwaterowanie rosną szybciej niż przychody. Zalecam ostrożność.",
-    "CSO_Opinion": "Ale spójrz na trendy! Zakwaterowanie to przyszłość, musimy tam być zanim konkurencja wejdzie.",
+    "CRO_Opinion": "Sytuacja w sektorze zakwaterowania wydaje się niestabilna. Przy obecnych wskaźnikach i groźbie recesji, powinniśmy zachować ostrożność i unikać ryzyka związanego z inwestycjami w tej branży.",
+    "CSO_Opinion": "Uważam, że sektor zakwaterowania ma duży potencjał, szczególnie w kontekście rosnącej popularności turystyki indywidualnej i nowych technologii. Możemy wykorzystać innowacyjne rozwiązania, aby zwiększyć efektywność i zdobyć przewagę konkurencyjną.",
     "Final_Verdict": "HOLD"
   },
   "56": {
-    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Usługi związane z wyżywieniem ma fatalną płynność. STOP.",
-    "CSO_Opinion": "Może i jest ryzyko, ale Usługi związane z wyżywieniem przechodzi restrukturyzację. Warto obserwować.",
+    "CRO_Opinion": "Przy wskaźnikach rentowności na poziomie 0.06 i obecnym kryzysowym stanie branży, zwiększanie ekspozycji na 'Usługi związane z wyżywieniem' wydaje się nierozsądne. Obawiam się potencjalnych strat wynikających z pogorszenia koniunktury.",
+    "CSO_Opinion": "Widzę tu przestrzeń do innowacji i dywersyfikacji oferty. Inwestycje w nowoczesne technologie w obszarze cateringu i dostaw mogą przynieść znaczący zwrot, szczególnie w niszy premium.",
     "Final_Verdict": "REJECT"
   },
   "49": {
-    "CRO_Opinion": "Nie podoba mi się cykliczność Transport lądowy i rurociągowy. W razie recesji będą pierwsi do windykacji.",
-    "CSO_Opinion": "Nie bądźmy dinozaurami. Transport lądowy i rurociągowy to innowacja, którą klienci kochają.",
+    "CRO_Opinion": "Przy obecnej sytuacji gospodarczej, branża transportu lądowego i rurociągowego wydaje się zbyt ryzykowna. Wysokie zadłużenie w wielu firmach i widmo recesji zmuszają do ostrożności.",
+    "CSO_Opinion": "Sektor ten ma ogromny potencjał wzrostu, szczególnie w kontekście rozwoju infrastruktury i wdrażania nowych technologii. Inwestycje w tym obszarze to szansa na długoterminowe zyski.",
     "Final_Verdict": "HOLD"
   },
   "47": {
-    "CRO_Opinion": "Nie podoba mi się cykliczność Handel detaliczny. W razie recesji będą pierwsi do windykacji.",
-    "CSO_Opinion": "Technologia zmienia Handel detaliczny nie do poznania. Widzę tu potencjał na 20% wzrostu.",
+    "CRO_Opinion": "Handel detaliczny, przy obecnym otoczeniu gospodarczym, obarczony jest zbyt dużym ryzykiem. Patrząc na obecne zadłużenie gospodarstw domowych oraz widmo recesji, obawiam się o stabilność tego sektora.",
+    "CSO_Opinion": "Handel detaliczny ewoluuje, a firmy, które wdrażają innowacyjne rozwiązania technologiczne i dostosowują się do zmieniających się preferencji klientów, mają ogromny potencjał wzrostu. Uważam, że odpowiednio dobrane inwestycje w tym sektorze mogą przynieść znaczne zyski.",
     "Final_Verdict": "HOLD"
   },
   "10": {
-    "CRO_Opinion": "Koszty stałe w Produkcja artykułów spożywczych rosną szybciej niż przychody. Zalecam ostrożność.",
-    "CSO_Opinion": "To jest 'Hidden Gem'. Produkcja artykułów spożywczych ma solidne podstawy i świetne perspektywy w erze AI.",
+    "CRO_Opinion": "Zyskowność na poziomie 6,25% w sektorze spożywczym to za mało, by spać spokojnie. Przy obecnej niepewności gospodarczej i zadłużeniu firm, wstrzymałbym się od inwestycji.",
+    "CSO_Opinion": "Sektor produkcji żywności jest strategicznie ważny, a wskaźnik płynności 1.5 daje nam margines bezpieczeństwa. Widzę ogromny potencjał w innowacyjnych technologiach w tym obszarze, które mogą przynieść wysokie zwroty.",
     "Final_Verdict": "HOLD"
   },
   "25": {
-    "CRO_Opinion": "Koszty stałe w Produkcja metalowych wyrobów gotowych rosną szybciej niż przychody. Zalecam ostrożność.",
-    "CSO_Opinion": "Ale spójrz na trendy! Produkcja metalowych wyrobów gotowych to przyszłość, musimy tam być zanim konkurencja wejdzie.",
+    "CRO_Opinion": "Zyskowność na poziomie 5,7% przy płynności 1,5 nie napawa optymizmem, szczególnie w obliczu spowolnienia gospodarczego. Obawiam się, że wzrost zadłużenia w tej branży może okazać się bardzo ryzykowny.",
+    "CSO_Opinion": "Branża produkcji metalowych wyrobów gotowych ma potencjał, szczególnie w kontekście rozwoju nowoczesnych technologii i automatyzacji. Uważam, że strategiczne inwestycje w innowacje mogą znacząco zwiększyć rentowność i konkurencyjność firm z tego sektora.",
     "Final_Verdict": "HOLD"
   },
   "68": {
-    "CRO_Opinion": "Koszty stałe w Obsługa rynku nieruchomości rosną szybciej niż przychody. Zalecam ostrożność.",
-    "CSO_Opinion": "To jest 'Hidden Gem'. Obsługa rynku nieruchomości ma solidne podstawy i świetne perspektywy w erze AI.",
+    "CRO_Opinion": "Biorąc pod uwagę obecne wahania na rynku nieruchomości i ryzyko recesji, angażowanie się w obsługę tego sektora wydaje się nieodpowiedzialne. Nasza płynność jest w porządku, ale musimy ją chronić, a nie wystawiać na potencjalne straty.",
+    "CSO_Opinion": "Rynek nieruchomości, mimo wyzwań, oferuje znaczny potencjał wzrostu, zwłaszcza w obszarze nowoczesnych technologii i zrównoważonego budownictwa. Inwestycja w obsługę tego rynku to szansa na dywersyfikację i zwiększenie przychodów banku, co długoterminowo przyniesie korzyści.",
     "Final_Verdict": "HOLD"
   },
   "73": {
-    "CRO_Opinion": "Koszty stałe w Reklama i badania rynku rosną szybciej niż przychody. Zalecam ostrożność.",
-    "CSO_Opinion": "Nie bądźmy dinozaurami. Reklama i badania rynku to innowacja, którą klienci kochają.",
+    "CRO_Opinion": "Reklama i badania rynku? W obecnej sytuacji gospodarczej, skupmy się na minimalizacji ryzyka. Zbyt duże inwestycje w ten sektor przy obecnym zadłużeniu to proszenie się o kłopoty.",
+    "CSO_Opinion": "Uważam, że reklama i badania rynku to klucz do pozyskania nowych klientów i dywersyfikacji naszych źródeł przychodów. Musimy inwestować w przyszłość, aby wyprzedzić konkurencję i wykorzystać nowe technologie!",
     "Final_Verdict": "HOLD"
   },
   "86": {
-    "CRO_Opinion": "Ryzyko regulacyjne w Opieka zdrowotna jest niepokojące. Widzimy presję na marże.",
-    "CSO_Opinion": "Ale spójrz na trendy! Opieka zdrowotna to przyszłość, musimy tam być zanim konkurencja wejdzie.",
+    "CRO_Opinion": "Biorąc pod uwagę niepewność gospodarczą i potencjalne ryzyko związane z zadłużeniem, jestem bardzo ostrożny w ocenie sektora opieki zdrowotnej. Przy obecnych parametrach, uważam, że powinniśmy zachować szczególną uwagę i unikać niepotrzebnego narażania się na ryzyko.",
+    "CSO_Opinion": "Sektor opieki zdrowotnej, mimo wyzwań, oferuje ogromny potencjał wzrostu, zwłaszcza w obszarze innowacyjnych technologii i rozwiązań telemedycznych. Myślę, że strategiczne inwestycje mogą przynieść znaczące zyski w przyszłości, budując długoterminową wartość dla banku.",
     "Final_Verdict": "HOLD"
   },
   "29": {
-    "CRO_Opinion": "Wskaźniki zadłużenia dla Produkcja pojazdów samochodowych są na granicy akceptowalności. Czy to bezpieczne?",
-    "CSO_Opinion": "Nie bądźmy dinozaurami. Produkcja pojazdów samochodowych to innowacja, którą klienci kochają.",
+    "CRO_Opinion": "Te wskaźniki, choć pozytywne, nie przekreślają ryzyka. Recesja wisi w powietrzu, a branża motoryzacyjna jest bardzo wrażliwa na wahania koniunktury i rosnące zadłużenie konsumentów.",
+    "CSO_Opinion": "Zyskowność jest solidna, a płynność bardzo dobra! To idealny moment, by zainwestować w innowacyjne firmy, które wdrażają nowe technologie i kształtują przyszłość mobilności.",
     "Final_Verdict": "HOLD"
   },
   "35": {
-    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Wytwarzanie i zaopatrywanie w energię elektryczną ma fatalną płynność. STOP.",
-    "CSO_Opinion": "Może i jest ryzyko, ale Wytwarzanie i zaopatrywanie w energię elektryczną przechodzi restrukturyzację. Warto obserwować.",
+    "CRO_Opinion": "Przy obecnym statusie krytycznym i niepewnej sytuacji gospodarczej, dalsze angażowanie się w sektor wytwarzania i zaopatrywania w energię elektryczną jest zbyt ryzykowne. Zadłużenie w tym sektorze może się okazać dla nas zabójcze w przypadku recesji.",
+    "CSO_Opinion": "Sektor energetyczny stoi w obliczu transformacji technologicznej, co stwarza ogromne możliwości wzrostu i innowacji. Musimy śledzić postępy w odnawialnych źródłach energii i inteligentnych sieciach, aby strategicznie wykorzystać przyszłe trendy.",
     "Final_Verdict": "REJECT"
   },
   "64": {
-    "CRO_Opinion": "Wskaźniki zadłużenia dla Finansowa usługa są na granicy akceptowalności. Czy to bezpieczne?",
-    "CSO_Opinion": "To jest 'Hidden Gem'. Finansowa usługa ma solidne podstawy i świetne perspektywy w erze AI.",
+    "CRO_Opinion": "Uważam, że powinniśmy zachować ostrożność. Wskaźniki wyglądają stabilnie, ale wiszą nad nami widma recesji i potencjalnego wzrostu zadłużenia, co stwarza poważne ryzyko.",
+    "CSO_Opinion": "Patrzę na to z innej perspektywy! Widzę tutaj ogromny potencjał wzrostu i możliwość wykorzystania najnowszych technologii do zwiększenia efektywności i dotarcia do nowych klientów.",
     "Final_Verdict": "HOLD"
   },
   "79": {
-    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Działalność organizatorów turystyki ma fatalną płynność. STOP.",
-    "CSO_Opinion": "Może i jest ryzyko, ale Działalność organizatorów turystyki przechodzi restrukturyzację. Warto obserwować.",
+    "CRO_Opinion": "Zyskowność na poziomie 0.05 i ogólny status 'KRYTYCZNY' to dla mnie sygnał alarmowy. W obecnej sytuacji gospodarczej, nie możemy ryzykować ekspozycji na tak niestabilny sektor.",
+    "CSO_Opinion": "Widzę potencjał w modernizacji oferty turystycznej i personalizacji doświadczeń klienta, wykorzystując najnowsze technologie. Musimy rozważyć, czy krótkoterminowe problemy nie przesłaniają długoterminowych możliwości rozwoju.",
     "Final_Verdict": "REJECT"
   }
 }
