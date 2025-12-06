@@ -1,0 +1,77 @@
+{
+  "62": {
+    "CRO_Opinion": "Finansowo Oprogramowanie i doradztwo w zakresie informatyki wygląda stabilnie, choć martwi mnie zależność od cen energii.",
+    "CSO_Opinion": "To jest nasz czarny koń! Oprogramowanie i doradztwo w zakresie informatyki idealnie wpisuje się w megatrendy. BUY!",
+    "Final_Verdict": "BUY"
+  },
+  "41": {
+    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Roboty budowlane związane ze wznoszeniem budynków ma fatalną płynność. STOP.",
+    "CSO_Opinion": "Może i jest ryzyko, ale Roboty budowlane związane ze wznoszeniem budynków przechodzi restrukturyzację. Warto obserwować.",
+    "Final_Verdict": "REJECT"
+  },
+  "55": {
+    "CRO_Opinion": "Koszty stałe w Zakwaterowanie rosną szybciej niż przychody. Zalecam ostrożność.",
+    "CSO_Opinion": "Ale spójrz na trendy! Zakwaterowanie to przyszłość, musimy tam być zanim konkurencja wejdzie.",
+    "Final_Verdict": "HOLD"
+  },
+  "56": {
+    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Usługi związane z wyżywieniem ma fatalną płynność. STOP.",
+    "CSO_Opinion": "Może i jest ryzyko, ale Usługi związane z wyżywieniem przechodzi restrukturyzację. Warto obserwować.",
+    "Final_Verdict": "REJECT"
+  },
+  "49": {
+    "CRO_Opinion": "Nie podoba mi się cykliczność Transport lądowy i rurociągowy. W razie recesji będą pierwsi do windykacji.",
+    "CSO_Opinion": "Nie bądźmy dinozaurami. Transport lądowy i rurociągowy to innowacja, którą klienci kochają.",
+    "Final_Verdict": "HOLD"
+  },
+  "47": {
+    "CRO_Opinion": "Nie podoba mi się cykliczność Handel detaliczny. W razie recesji będą pierwsi do windykacji.",
+    "CSO_Opinion": "Technologia zmienia Handel detaliczny nie do poznania. Widzę tu potencjał na 20% wzrostu.",
+    "Final_Verdict": "HOLD"
+  },
+  "10": {
+    "CRO_Opinion": "Koszty stałe w Produkcja artykułów spożywczych rosną szybciej niż przychody. Zalecam ostrożność.",
+    "CSO_Opinion": "To jest 'Hidden Gem'. Produkcja artykułów spożywczych ma solidne podstawy i świetne perspektywy w erze AI.",
+    "Final_Verdict": "HOLD"
+  },
+  "25": {
+    "CRO_Opinion": "Koszty stałe w Produkcja metalowych wyrobów gotowych rosną szybciej niż przychody. Zalecam ostrożność.",
+    "CSO_Opinion": "Ale spójrz na trendy! Produkcja metalowych wyrobów gotowych to przyszłość, musimy tam być zanim konkurencja wejdzie.",
+    "Final_Verdict": "HOLD"
+  },
+  "68": {
+    "CRO_Opinion": "Koszty stałe w Obsługa rynku nieruchomości rosną szybciej niż przychody. Zalecam ostrożność.",
+    "CSO_Opinion": "To jest 'Hidden Gem'. Obsługa rynku nieruchomości ma solidne podstawy i świetne perspektywy w erze AI.",
+    "Final_Verdict": "HOLD"
+  },
+  "73": {
+    "CRO_Opinion": "Koszty stałe w Reklama i badania rynku rosną szybciej niż przychody. Zalecam ostrożność.",
+    "CSO_Opinion": "Nie bądźmy dinozaurami. Reklama i badania rynku to innowacja, którą klienci kochają.",
+    "Final_Verdict": "HOLD"
+  },
+  "86": {
+    "CRO_Opinion": "Ryzyko regulacyjne w Opieka zdrowotna jest niepokojące. Widzimy presję na marże.",
+    "CSO_Opinion": "Ale spójrz na trendy! Opieka zdrowotna to przyszłość, musimy tam być zanim konkurencja wejdzie.",
+    "Final_Verdict": "HOLD"
+  },
+  "29": {
+    "CRO_Opinion": "Wskaźniki zadłużenia dla Produkcja pojazdów samochodowych są na granicy akceptowalności. Czy to bezpieczne?",
+    "CSO_Opinion": "Nie bądźmy dinozaurami. Produkcja pojazdów samochodowych to innowacja, którą klienci kochają.",
+    "Final_Verdict": "HOLD"
+  },
+  "35": {
+    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Wytwarzanie i zaopatrywanie w energię elektryczną ma fatalną płynność. STOP.",
+    "CSO_Opinion": "Może i jest ryzyko, ale Wytwarzanie i zaopatrywanie w energię elektryczną przechodzi restrukturyzację. Warto obserwować.",
+    "Final_Verdict": "REJECT"
+  },
+  "64": {
+    "CRO_Opinion": "Wskaźniki zadłużenia dla Finansowa usługa są na granicy akceptowalności. Czy to bezpieczne?",
+    "CSO_Opinion": "To jest 'Hidden Gem'. Finansowa usługa ma solidne podstawy i świetne perspektywy w erze AI.",
+    "Final_Verdict": "HOLD"
+  },
+  "79": {
+    "CRO_Opinion": "To jest bomba z opóźnionym zapłonem! Działalność organizatorów turystyki ma fatalną płynność. STOP.",
+    "CSO_Opinion": "Może i jest ryzyko, ale Działalność organizatorów turystyki przechodzi restrukturyzację. Warto obserwować.",
+    "Final_Verdict": "REJECT"
+  }
+}

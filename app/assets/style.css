@@ -1,0 +1,73 @@
+/* Global Settings */
+.main {
+    background-color: #0E1117;
+    color: #FAFAFA;
+}
+
+/* Header */
+h1, h2, h3 {
+    font-family: 'Inter', sans-serif;
+    color: #FAFAFA !important;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #161B22;
+    border-right: 1px solid #30363D;
+}
+
+/* Cards/Containers */
+.stMarkdown {
+    /* font-family: 'Inter', sans-serif; */
+}
+
+/* Custom classes for AI Personas */
+.cro-bubble {
+    background-color: #3d0c0c;
+    border-left: 4px solid #ff4b4b;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    color: #ffdce0;
+}
+
+.cso-bubble {
+    background-color: #0c2b3d;
+    border-left: 4px solid #00c0f2;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    color: #dcf8ff;
+}
+
+.verdict-box {
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.verdict-buy {
+    background-color: #1f7a1f;
+    border: 2px solid #2ecc71;
+    color: white;
+}
+
+.verdict-hold {
+    background-color: #9e7c0d;
+    border: 2px solid #f1c40f;
+    color: white;
+}
+
+.verdict-reject {
+    background-color: #7a1f1f;
+    border: 2px solid #e74c3c;
+    color: white;
+}
+
+/* Plotly Chart Background */
+.js-plotly-plot .plotly .main-svg {
+    background: rgba(0,0,0,0) !important;
+}
