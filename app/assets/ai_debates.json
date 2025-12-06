@@ -1,77 +1,92 @@
 {
-  "62": {
-    "CRO_Opinion": "Mimo wszystko, sektor IT jest wrażliwy na spowolnienie gospodarcze. Musimy zachować ostrożność i monitorować poziom zadłużenia potencjalnych inwestycji.",
-    "CSO_Opinion": "Sektor oprogramowania i doradztwa IT oferuje ogromny potencjał wzrostu, szczególnie w obszarach takich jak sztuczna inteligencja i cyberbezpieczeństwo. To doskonała okazja dla naszego banku!",
+  "SEK_A": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność. Spadek przychodów o 2,53% w 2024 roku, do poziomu 48,053 mln PLN, oraz obniżenie rentowności do 84,16% w porównaniu z 91,4% w 2022 roku, są alarmujące. Pomimo braku bankructw, ta tendencja spadkowa może zwiastować problemy w przyszłości i wymaga szczegółowej analizy.",
+    "CSO_Opinion": "Widzę tu strategiczną szansę na rozwój. Sektor ten wciąż charakteryzuje się wysoką rentownością na poziomie 84,16%. Dynamika wzrostu w latach 2021 i 2022, odpowiednio 15% i 28,2%, pokazuje potencjał. Transformacja, choć oceniana na 43.4 w S&T Score, daje możliwość innowacji i zwiększenia efektywności w przyszłości.",
+    "Final_Verdict": "HOLD"
+  },
+  "SEK_B": {
+    "CRO_Opinion": "Musimy zachować szczególną ostrożność. Spadek przychodów o 12,69% w bieżącym roku do poziomu 92,134 mld PLN to poważny sygnał ostrzegawczy. Historia pokazuje, że lata 2019 i 2020 przyniosły spadki przychodów, co może sugerować powtarzający się cykl koniunkturalny. Pomimo braku bankructw, osłabienie rentowności firm z 84% w 2023 do 80,94% w 2024 jest niepokojące.",
+    "CSO_Opinion": "Widzę tutaj znaczące możliwości rozwoju. Pomimo tegorocznego spadku, sektor wykazał dynamiczny wzrost w latach 2021 i 2022, odpowiednio o 30,5% i 33,8%. Rentowność na poziomie 80,94% nadal jest wysoka, a S&T Score wskazuje na potencjał transformacji, choć wymaga ona strategicznego wsparcia. Inwestycje w innowacje i nowe technologie mogą odwrócić obecny trend spadkowy.",
+    "Final_Verdict": "HOLD"
+  },
+  "SEK_C": {
+    "CRO_Opinion": "Musimy zachować ogromną ostrożność. Spadek przychodów o 5.61% w bieżącym roku do 2,122,804.98 mln PLN, w połączeniu ze spadkiem rentowności firm do 76.36% z 81.0% w poprzednim roku, sygnalizuje poważne problemy. Pomimo zerowego wskaźnika bankructw, trend spadkowy jest niepokojący i wymaga dogłębnej analizy.",
+    "CSO_Opinion": "Widzę tutaj ogromną szansę na strategiczne inwestycje w sektorze przetwórstwa przemysłowego. Dynamika wzrostu w latach 2021-2022, kiedy to odnotowaliśmy wzrost przychodów o 23.6% i 31.1% odpowiednio, udowadnia potencjał tego rynku. Należy skupić się na innowacjach i transformacji, podnosząc wskaźnik Transformation S&T z obecnych 28.7, aby wykorzystać przyszły wzrost gospodarczy.",
+    "Final_Verdict": "HOLD"
+  },
+  "SEK_D": {
+    "CRO_Opinion": "Mamy powody do poważnych obaw. Spadek przychodów o 20,74% w roku 2024 to sygnał alarmowy. Historycznie, po dynamicznym wzroście o 62,8% w 2022 roku, widać wyraźne spowolnienie, a teraz wręcz recesję. Mimo zerowego wskaźnika bankructw, utrzymująca się tendencja spadkowa przychodów powinna skłonić nas do ostrożności.",
+    "CSO_Opinion": "Widzę tutaj szansę na długoterminowy wzrost, pomimo obecnych wyzwań. Profitowność firm w sektorze utrzymuje się na wysokim poziomie 79,74%, co świadczy o odporności i potencjale generowania zysków. Ponadto, sektor przeszedł transformację (S&T Score Transformation=16.9) i wykazał imponujący wzrost w 2021 roku, osiągając +34,1% YoY. Inwestycje w innowacyjne technologie mogą przywrócić dynamikę wzrostu.",
+    "Final_Verdict": "HOLD"
+  },
+  "SEK_E": {
+    "CRO_Opinion": "Musimy zachować szczególną ostrożność. Spadek rentowności w latach 2022 i 2023 do 64.9% i 64.6% odpowiednio, z wcześniejszych poziomów około 77%, jest alarmujący. Co prawda rentowność odbiła do 70.6% w bieżącym roku, ale nie możemy ignorować wcześniejszego wyraźnego pogorszenia. Dodatkowo, wzrost przychodów w 2023 roku wyniósł zaledwie 1.0%, co pokazuje osłabienie dynamiki w tamtym okresie.",
+    "CSO_Opinion": "Widzę tu znaczące możliwości strategiczne. Pomimo pewnych wahań, branża wykazuje silny wzrost przychodów, szczególnie imponujący jest skok o 19.3% w 2021 roku i 12.5% w roku bieżącym, osiągając 67,623 MLN PLN. Stabilność sektora, na poziomie 57.8, wskazuje na solidne fundamenty, a rosnąca rentowność firm do poziomu 70.57% w 2024 roku sugeruje efektywność operacyjną. Inwestycje w innowacje i transformację (S&T Score: 27.2) mogą dodatkowo stymulować rozwój.",
     "Final_Verdict": "BUY"
   },
-  "41": {
-    "CRO_Opinion": "Biorąc pod uwagę naszą krytyczną sytuację i niską rentowność, inwestycje w roboty budowlane są zbyt ryzykowne. Obawiam się, że dodatkowe zadłużenie pogłębi nasze problemy w obliczu potencjalnej recesji.",
-    "CSO_Opinion": "Rozumiem obawy, ale roboty budowlane to przyszłość i klucz do zwiększenia efektywności. Dzięki nim możemy obniżyć koszty i zyskać przewagę konkurencyjną, co w dłuższej perspektywie poprawi naszą rentowność.",
-    "Final_Verdict": "REJECT"
-  },
-  "55": {
-    "CRO_Opinion": "Sytuacja w sektorze zakwaterowania wydaje się niestabilna. Przy obecnych wskaźnikach i groźbie recesji, powinniśmy zachować ostrożność i unikać ryzyka związanego z inwestycjami w tej branży.",
-    "CSO_Opinion": "Uważam, że sektor zakwaterowania ma duży potencjał, szczególnie w kontekście rosnącej popularności turystyki indywidualnej i nowych technologii. Możemy wykorzystać innowacyjne rozwiązania, aby zwiększyć efektywność i zdobyć przewagę konkurencyjną.",
+  "SEK_F": {
+    "CRO_Opinion": "Musimy zachować szczególną ostrożność! Spadek przychodów o 1,97% w bieżącym roku do poziomu 261,708 mln PLN to niepokojący sygnał. Dodatkowo, obserwujemy spadek rentowności firm z 87,6% w 2023 roku do 84,29% w 2024 roku. Pomimo braku bankructw, te negatywne trendy mogą się nasilić.",
+    "CSO_Opinion": "Widzę tutaj strategiczną szansę na rozwój, szczególnie w obszarze transformacji, mimo iż jej wynik to zaledwie 32.6. Należy pamiętać o dynamicznym wzroście w latach 2021-2023, gdzie w 2022 odnotowaliśmy wzrost przychodów aż o 21,4%. Wysoka rentowność firm budowlanych, utrzymująca się powyżej 80% przez ostatnie lata, stwarza solidną podstawę do inwestycji.",
     "Final_Verdict": "HOLD"
   },
-  "56": {
-    "CRO_Opinion": "Przy wskaźnikach rentowności na poziomie 0.06 i obecnym kryzysowym stanie branży, zwiększanie ekspozycji na 'Usługi związane z wyżywieniem' wydaje się nierozsądne. Obawiam się potencjalnych strat wynikających z pogorszenia koniunktury.",
-    "CSO_Opinion": "Widzę tu przestrzeń do innowacji i dywersyfikacji oferty. Inwestycje w nowoczesne technologie w obszarze cateringu i dostaw mogą przynieść znaczący zwrot, szczególnie w niszy premium.",
-    "Final_Verdict": "REJECT"
-  },
-  "49": {
-    "CRO_Opinion": "Przy obecnej sytuacji gospodarczej, branża transportu lądowego i rurociągowego wydaje się zbyt ryzykowna. Wysokie zadłużenie w wielu firmach i widmo recesji zmuszają do ostrożności.",
-    "CSO_Opinion": "Sektor ten ma ogromny potencjał wzrostu, szczególnie w kontekście rozwoju infrastruktury i wdrażania nowych technologii. Inwestycje w tym obszarze to szansa na długoterminowe zyski.",
+  "SEK_G": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność. Mimo pozornie stabilnej sytuacji, dynamika wzrostu przychodów w tym roku to zaledwie 1.55%, co jest znaczącym spowolnieniem w porównaniu do 23.5% wzrostu w 2022 roku. Co więcej, odsetek rentownych firm spadł do 82.03% z 90% w 2021, co sygnalizuje pogorszenie kondycji finansowej w sektorze. Brak bankructw na razie nie rekompensuje tych negatywnych trendów.",
+    "CSO_Opinion": "Widzę tu ogromną szansę na strategiczne inwestycje. Rynek jest duży, obejmując ponad 13 tysięcy podmiotów, a przychody sięgają prawie 2 miliardów PLN. Rok 2021 pokazał potencjał wzrostu, z przychodami rosnącymi o 18.5%. Wynik S&T wskazuje na obszary wymagające transformacji, co tworzy idealną przestrzeń dla innowacyjnych rozwiązań finansowych i kredytowych, wspierających rozwój przedsiębiorstw i wzrost efektywności.",
     "Final_Verdict": "HOLD"
   },
-  "47": {
-    "CRO_Opinion": "Handel detaliczny, przy obecnym otoczeniu gospodarczym, obarczony jest zbyt dużym ryzykiem. Patrząc na obecne zadłużenie gospodarstw domowych oraz widmo recesji, obawiam się o stabilność tego sektora.",
-    "CSO_Opinion": "Handel detaliczny ewoluuje, a firmy, które wdrażają innowacyjne rozwiązania technologiczne i dostosowują się do zmieniających się preferencji klientów, mają ogromny potencjał wzrostu. Uważam, że odpowiednio dobrane inwestycje w tym sektorze mogą przynieść znaczne zyski.",
+  "SEK_H": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność. Spadek rentowności firm z 85.6% w 2022 do 74.9% w bieżącym roku, przy jednoczesnym spowolnieniu wzrostu przychodów z 24.9% w 2022 do 4.9% w 2024, sygnalizuje potencjalne problemy. Pomimo braku bankructw, malejąca rentowność może wkrótce przełożyć się na realne ryzyko kredytowe.",
+    "CSO_Opinion": "Widzę tutaj strategiczną szansę, pomimo drobnych turbulencji. Rynek transportu i gospodarki magazynowej wykazuje stały wzrost, osiągając 308,543.27 mln PLN przychodów w 2024. Dynamiczny wzrost w latach 2021-2022, kiedy to przychody wzrosły odpowiednio o 22.2% i 24.9%, dowodzi potencjału wzrostu tej branży. Transformacja cyfrowa i logistyczna oferują pole do inwestycji w innowacyjne rozwiązania, generujące wysokie zwroty w przyszłości.",
     "Final_Verdict": "HOLD"
   },
-  "10": {
-    "CRO_Opinion": "Zyskowność na poziomie 6,25% w sektorze spożywczym to za mało, by spać spokojnie. Przy obecnej niepewności gospodarczej i zadłużeniu firm, wstrzymałbym się od inwestycji.",
-    "CSO_Opinion": "Sektor produkcji żywności jest strategicznie ważny, a wskaźnik płynności 1.5 daje nam margines bezpieczeństwa. Widzę ogromny potencjał w innowacyjnych technologiach w tym obszarze, które mogą przynieść wysokie zwroty.",
+  "SEK_I": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność wobec sektora 'DZIAŁALNOŚĆ ZWIĄZANA Z ZAKWATEROWANIEM I USŁUGAMI GASTRONOMICZNYMI'. Pomimo ogólnego wzrostu przychodów w roku bieżącym o 11.3%, spadek rentowności firm z 76.2% w 2023 roku do 73.52% w 2024 roku jest alarmujący. Dodatkowo, historycznie rok 2020 pokazał, jak bardzo ten sektor jest podatny na kryzysy, kiedy to przychody spadły aż o 31.5%.",
+    "CSO_Opinion": "Widzę w sektorze 'DZIAŁALNOŚĆ ZWIĄZANA Z ZAKWATEROWANIEM I USŁUGAMI GASTRONOMICZNYMI' ogromny potencjał strategiczny. Po dynamicznym wzroście w latach 2021-2023, osiągając wzrosty rzędu 29.5%, 48.1% i 21.1% odpowiednio, sektor udowodnił swoją zdolność do odbudowy i generowania wartości. Wzrost przychodów do 40,232.17 mln PLN w 2024 r. świadczy o ciągłej ekspansji i możliwościach transformacji, a stabilność sektora utrzymuje się na poziomie 59.4.",
     "Final_Verdict": "HOLD"
   },
-  "25": {
-    "CRO_Opinion": "Zyskowność na poziomie 5,7% przy płynności 1,5 nie napawa optymizmem, szczególnie w obliczu spowolnienia gospodarczego. Obawiam się, że wzrost zadłużenia w tej branży może okazać się bardzo ryzykowny.",
-    "CSO_Opinion": "Branża produkcji metalowych wyrobów gotowych ma potencjał, szczególnie w kontekście rozwoju nowoczesnych technologii i automatyzacji. Uważam, że strategiczne inwestycje w innowacje mogą znacząco zwiększyć rentowność i konkurencyjność firm z tego sektora.",
+  "SEK_J": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować dużą ostrożność. Spadek tempa wzrostu przychodów w ostatnich latach jest niepokojący – z 18,5% w 2021 roku do 8,8% w roku bieżącym, 2024. Ponadto, rentowność, choć nadal wysoka na poziomie 79,33%, nieznacznie spadła w porównaniu do 81,8% w 2021. Stabilność branży, choć stosunkowo wysoka (S&T Stability=62.4), nie rekompensuje potencjalnych zagrożeń związanych ze spowalniającym wzrostem.",
+    "CSO_Opinion": "Widzę ogromną szansę w dalszej transformacji cyfrowej sektora. Przychody w 2024 roku osiągnęły poziom 224,728 mln PLN, co dowodzi dynamicznego rozwoju. Wysoki wskaźnik rentowności na poziomie 79,33% świadczy o solidnych fundamentach. Wzrost w 2021 roku na poziomie 18,5% pokazuje potencjał do jeszcze szybszego rozwoju w sprzyjających warunkach. Inwestycje w innowacje i adaptacja do nowych technologii mogą przynieść znaczące korzyści.",
     "Final_Verdict": "HOLD"
   },
-  "68": {
-    "CRO_Opinion": "Biorąc pod uwagę obecne wahania na rynku nieruchomości i ryzyko recesji, angażowanie się w obsługę tego sektora wydaje się nieodpowiedzialne. Nasza płynność jest w porządku, ale musimy ją chronić, a nie wystawiać na potencjalne straty.",
-    "CSO_Opinion": "Rynek nieruchomości, mimo wyzwań, oferuje znaczny potencjał wzrostu, zwłaszcza w obszarze nowoczesnych technologii i zrównoważonego budownictwa. Inwestycja w obsługę tego rynku to szansa na dywersyfikację i zwiększenie przychodów banku, co długoterminowo przyniesie korzyści.",
+  "SEK_K": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować ostrożność. Pomimo wzrostu przychodów o 18.67% w bieżącym roku, spadek przychodów o 2% w 2020 roku oraz niski wzrost o 2.7% w 2023 roku wskazują na potencjalną zmienność i cykliczność w sektorze. Stabilność na poziomie 65.1 to za mało, by bezkrytycznie wierzyć we wzrosty.",
+    "CSO_Opinion": "Widzę ogromną szansę strategiczną w działalności finansowej i ubezpieczeniowej. Rosnąca rentowność, obecnie na poziomie 80.6%, oraz imponujący wzrost o 46.4% w 2022 roku udowadniają potencjał sektora. Wzrost w 2021 roku o 9% również utwierdza mnie w przekonaniu o długoterminowym wzroście.",
+    "Final_Verdict": "BUY"
+  },
+  "SEK_L": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność. Dynamika wzrostu przychodów w branży obsługi rynku nieruchomości wyraźnie spowalnia. Podczas gdy w roku 2023 odnotowaliśmy skokowy wzrost o 28,5%, w roku bieżącym obserwujemy już tylko 5,15% wzrost. Brak bankructw jest pozytywny, ale niższy wzrost przychodów może wskazywać na nadchodzące problemy z płynnością finansową niektórych podmiotów.",
+    "CSO_Opinion": "Widzę w tym sektorze znaczącą szansę na dalszy rozwój. Rentowność firm w branży utrzymała się na wysokim poziomie 87,27% w bieżącym roku, co świadczy o ich efektywności operacyjnej. Wzrost przychodów w 2021 roku o 12,3% pokazał potencjał tej branży. Wynik S&T, choć niski pod względem Transformacji, daje nam szansę na strategiczne inwestycje w innowacyjne modele obsługi rynku nieruchomości i zwiększenie wartości naszych inwestycji.",
     "Final_Verdict": "HOLD"
   },
-  "73": {
-    "CRO_Opinion": "Reklama i badania rynku? W obecnej sytuacji gospodarczej, skupmy się na minimalizacji ryzyka. Zbyt duże inwestycje w ten sektor przy obecnym zadłużeniu to proszenie się o kłopoty.",
-    "CSO_Opinion": "Uważam, że reklama i badania rynku to klucz do pozyskania nowych klientów i dywersyfikacji naszych źródeł przychodów. Musimy inwestować w przyszłość, aby wyprzedzić konkurencję i wykorzystać nowe technologie!",
+  "SEK_M": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować ostrożność. Spadek dynamiki wzrostu przychodów z 19.8% w 2022 do 11.4% w bieżącym roku to wyraźny sygnał ostrzegawczy. Co więcej, obserwowany spadek rentowności firm z 81.8% w 2021 do 79.74% w 2024 roku budzi moje obawy o długoterminową stabilność tego sektora.",
+    "CSO_Opinion": "Widzę ogromną szansę na ekspansję w tym obszarze. Pomimo pewnych spowolnień, sektor nadal generuje imponujący wzrost przychodów, osiągając 161,931.07 MLN PLN w bieżącym roku. Stabilność sektora na poziomie 63.1 S&T oraz transformacja na poziomie 42.9 S&T wskazują na duży potencjał innowacyjny i adaptacyjny.",
     "Final_Verdict": "HOLD"
   },
-  "86": {
-    "CRO_Opinion": "Biorąc pod uwagę niepewność gospodarczą i potencjalne ryzyko związane z zadłużeniem, jestem bardzo ostrożny w ocenie sektora opieki zdrowotnej. Przy obecnych parametrach, uważam, że powinniśmy zachować szczególną uwagę i unikać niepotrzebnego narażania się na ryzyko.",
-    "CSO_Opinion": "Sektor opieki zdrowotnej, mimo wyzwań, oferuje ogromny potencjał wzrostu, zwłaszcza w obszarze innowacyjnych technologii i rozwiązań telemedycznych. Myślę, że strategiczne inwestycje mogą przynieść znaczące zyski w przyszłości, budując długoterminową wartość dla banku.",
+  "SEK_N": {
+    "CRO_Opinion": "Musimy zachować szczególną ostrożność. Spadek tempa wzrostu przychodów w roku 2024 do 11.89% z 17.5% w roku 2023, a także spadek rentowności do 81.27% to sygnały ostrzegawcze. Historycznie, rok 2020 wykazał drastyczny spadek przychodów o 12.5%, co pokazuje, jak wrażliwa może być ta branża na czynniki zewnętrzne. Zero bankructw to dobra wiadomość, ale nie może nas usypiać.",
+    "CSO_Opinion": "Widzę tutaj znaczącą szansę na rozwój. Stabilny wzrost przychodów na poziomie 11.89% w bieżącym roku, po imponującym wzroście o 22.1% w 2021 i 22.4% w 2022, pokazuje potencjał tej branży. Rentowność utrzymuje się na wysokim poziomie, przekraczającym 80%, co świadczy o dojrzałości rynku. S&T Score pokazuje, że transformacja jest możliwa, co da nam przewagę konkurencyjną.",
     "Final_Verdict": "HOLD"
   },
-  "29": {
-    "CRO_Opinion": "Te wskaźniki, choć pozytywne, nie przekreślają ryzyka. Recesja wisi w powietrzu, a branża motoryzacyjna jest bardzo wrażliwa na wahania koniunktury i rosnące zadłużenie konsumentów.",
-    "CSO_Opinion": "Zyskowność jest solidna, a płynność bardzo dobra! To idealny moment, by zainwestować w innowacyjne firmy, które wdrażają nowe technologie i kształtują przyszłość mobilności.",
+  "SEK_P": {
+    "CRO_Opinion": "Uważam, że sytuacja w sektorze edukacji, choć na pozór stabilna, budzi poważne obawy. Spadek przychodów o 18.6% w roku 2020, choć odrobiony, pokazuje wrażliwość branży na czynniki zewnętrzne. Stabilność na poziomie 63.3 punktów, choć przyzwoita, nie rekompensuje niskiego wskaźnika transformacji wynoszącego zaledwie 45.7. Brak bankructw jest wprawdzie pozytywny, ale nie oznacza, że firmy nie mają problemów z płynnością.",
+    "CSO_Opinion": "Sektor edukacji w Polsce prezentuje strategiczną szansę na rozwój, szczególnie w kontekście rosnącego zapotrzebowania na nowoczesne formy kształcenia. Wzrost przychodów o 48.5% w roku 2023 oraz rentowność na poziomie 77.4% w roku 2024 pokazują, że firmy w tej branży potrafią efektywnie generować zyski. Należy również zwrócić uwagę na wysoki wzrost przychodów w bieżącym roku – aż o 19.12%. Transformacja, mimo obecnego poziomu, ma olbrzymi potencjał wzrostowy.",
     "Final_Verdict": "HOLD"
   },
-  "35": {
-    "CRO_Opinion": "Przy obecnym statusie krytycznym i niepewnej sytuacji gospodarczej, dalsze angażowanie się w sektor wytwarzania i zaopatrywania w energię elektryczną jest zbyt ryzykowne. Zadłużenie w tym sektorze może się okazać dla nas zabójcze w przypadku recesji.",
-    "CSO_Opinion": "Sektor energetyczny stoi w obliczu transformacji technologicznej, co stwarza ogromne możliwości wzrostu i innowacji. Musimy śledzić postępy w odnawialnych źródłach energii i inteligentnych sieciach, aby strategicznie wykorzystać przyszłe trendy.",
-    "Final_Verdict": "REJECT"
+  "SEK_Q": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować ostrożność. Spadek rentowności z 84.4% w 2023 roku do 82.42% w bieżącym roku to sygnał ostrzegawczy. Mimo imponującego wzrostu przychodów o 17.44% w roku 2024, historia pokazuje fluktuacje; na przykład w 2020 roku wzrost wyniósł tylko 9.1%. Musimy dokładnie przeanalizować, czy obecna sytuacja jest trwała.",
+    "CSO_Opinion": "Widzę ogromną szansę strategiczną. Sektor opieki zdrowotnej i pomocy społecznej wykazuje solidny wzrost – przychody wzrosły z 32,290 mln PLN w 2019 roku do 70,718.06 mln PLN w roku 2024. Szczególnie imponujący był wzrost o 25.3% w 2021 roku. Indeks transformacji wynoszący 31.8 wskazuje na możliwości innowacji i dalszego rozwoju. To idealny moment, by zainwestować w przyszłość.",
+    "Final_Verdict": "BUY"
   },
-  "64": {
-    "CRO_Opinion": "Uważam, że powinniśmy zachować ostrożność. Wskaźniki wyglądają stabilnie, ale wiszą nad nami widma recesji i potencjalnego wzrostu zadłużenia, co stwarza poważne ryzyko.",
-    "CSO_Opinion": "Patrzę na to z innej perspektywy! Widzę tutaj ogromny potencjał wzrostu i możliwość wykorzystania najnowszych technologii do zwiększenia efektywności i dotarcia do nowych klientów.",
+  "SEK_R": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność w kwestii finansowania sektora kultury, rozrywki i rekreacji. Choć przychody wzrosły o 22,88% w 2024 roku, to spadek rentowności firm z 53,6% w 2023 do 52,57% obecnie jest niepokojący. Dodatkowo, wzrost przychodów z roku na rok spowalnia, z 47,8% w 2022 do obecnych 22,88%, co sugeruje nasycenie rynku lub pojawianie się nowych ryzyk.",
+    "CSO_Opinion": "Widzę ogromny potencjał strategiczny w sektorze kultury, rozrywki i rekreacji. Pomimo drobnych wahań rentowności, przychody w 2024 roku osiągnęły imponującą kwotę 96,83 miliarda PLN, a wzrost w stosunku do roku poprzedniego wyniósł 22,88%. Dynamika rozwoju tego sektora, szczególnie wzrost o 45,5% w 2021 roku, wskazuje na rosnące zapotrzebowanie społeczne i możliwości innowacji.",
+    "Final_Verdict": "BUY"
+  },
+  "SEK_S": {
+    "CRO_Opinion": "Uważam, że powinniśmy zachować szczególną ostrożność. Spadek dynamiki wzrostu przychodów z 19.6% w 2023 roku do zaledwie 5.2% w bieżącym roku (2024) jest alarmujący. Dodatkowo, rentowność, choć wciąż wysoka na poziomie 73.9%, wykazuje tendencję spadkową w porównaniu do 76.1% w roku poprzednim. Brak bankructw nie powinien nas usypiać, skupmy się na potencjalnych zagrożeniach.",
+    "CSO_Opinion": "Widzę tutaj znaczącą szansę strategiczną. Mimo niewielkiego spadku rentowności, utrzymuje się ona na wysokim poziomie 73.9%. Dynamika wzrostu w ostatnich latach, szczególnie skokowy wzrost o 19.6% w 2023 roku, świadczy o ogromnym potencjale rozwoju w tej branży. Należy skoncentrować się na innowacjach i transformacji, co potwierdza wynik S&T, aby wykorzystać ten impet.",
     "Final_Verdict": "HOLD"
-  },
-  "79": {
-    "CRO_Opinion": "Zyskowność na poziomie 0.05 i ogólny status 'KRYTYCZNY' to dla mnie sygnał alarmowy. W obecnej sytuacji gospodarczej, nie możemy ryzykować ekspozycji na tak niestabilny sektor.",
-    "CSO_Opinion": "Widzę potencjał w modernizacji oferty turystycznej i personalizacji doświadczeń klienta, wykorzystując najnowsze technologie. Musimy rozważyć, czy krótkoterminowe problemy nie przesłaniają długoterminowych możliwości rozwoju.",
-    "Final_Verdict": "REJECT"
   }
 }

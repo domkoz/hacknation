@@ -42,15 +42,16 @@ def generate_debate_content(industry_name, status, metrics):
     
     Context Data:
     - Overall Status: {status}
-    - Key Metrics: {metrics}
+    - Key Metrics & History: 
+    {metrics}
     
-    Persona 1: CRO (Chief Risk Officer). Skeptical, conservative, worried about debt and recession.
-    Persona 2: CSO (Chief Strategy Officer). Optimistic, visionary, focused on growth and tech trends.
+    Persona 1: CRO (Chief Risk Officer). Skeptical, conservative. MUST QUOTE SPECIFIC NUMBERS (e.g. "Revenue dropped by X%", "Bankruptcy rate is Y%"). Warns about negative trends in history.
+    Persona 2: CSO (Chief Strategy Officer). Optimistic, visionary. MUST QUOTE SPECIFIC NUMBERS (e.g. "Profitability of Z%", "Growth in 2021"). Focuses on transformation potential despite risks.
     
     Generate a JSON response with exactly this structure (no markdown formatting):
     {{
-        "CRO_Opinion": "2 sentences from CRO perspective.",
-        "CSO_Opinion": "2 sentences from CSO perspective.",
+        "CRO_Opinion": "3-4 sentences. Start with a strong warning. Use data from the context to justify fear.",
+        "CSO_Opinion": "3-4 sentences. Start with a strategic opportunity. Use data to justify growth potential.",
         "Final_Verdict": "BUY" or "HOLD" or "REJECT"
     }}
     
@@ -58,8 +59,8 @@ def generate_debate_content(industry_name, status, metrics):
     - If status is CRITICAL, Verdict must be REJECT.
     - If status is OPPORTUNITY, Verdict must be BUY.
     - Else HOLD or BUY based on your assessment.
-    - Speak professionally but with character.
-    - Polish language.
+    - LANGUAGE: POLISH.
+    - Be detailed and specific. Do not use generic phrases.
     """
     
     # Try Real AI
@@ -101,27 +102,61 @@ def generate_debates():
     data_path = os.path.join(base_path, 'data')
     assets_path = os.path.join(base_path, 'app', 'assets')
     
-    # Load processed data
-    df = pd.read_csv(os.path.join(data_path, 'processed_index.csv'))
+    # Load Real Data
+    csv_path = os.path.join(data_path, 'processed_real_index.csv')
+    if not os.path.exists(csv_path):
+        print("Real index not found, falling back to mock file generation or error.")
+        return
+
+    df_full = pd.read_csv(csv_path)
+    
+    # Filter for MACRO Only (Sections)
+    # Use full df for history retrieval
+    df_macro_full = df_full[df_full['PKD_Code'].astype(str).str.startswith('SEK_')]
+    
+    # Target 2024 for main entries
+    df_2024 = df_macro_full[df_macro_full['Year'] == 2024]
     
     debates = {}
     
-    print(f"Starting generation for {len(df)} industries (Provider: {'Gemini' if API_KEY else 'MOCK'})...")
+    print(f"Starting generation for {len(df_2024)} Macro Industries using Gemini...")
     
-    for index, row in df.iterrows():
+    for index, row in df_2024.iterrows():
         pkd_code = str(row['PKD_Code'])
         industry_name = row['Industry_Name']
         status = row['Status']
         
-        # Format metrics for context
-        metrics = f"Profitability: {row.get('Profitability', 'N/A')}, Liquidity: {row.get('Liquidity', 'N/A')}"
+        # --- GATHER HISTORY (2019-2024) ---
+        history_df = df_macro_full[df_macro_full['PKD_Code'] == pkd_code].sort_values('Year')
+        # Keep recent history
+        history_recent = history_df[history_df['Year'] >= 2019]
         
-        print(f"Processing: {industry_name}...")
+        history_str = "Recent History (Year: Revenue | YoY | Profitability | Bankruptcy Rate):\n"
+        for _, h_row in history_recent.iterrows():
+            history_str += (f"- {h_row['Year']}: {h_row['Revenue']:,.0f}M PLN | "
+                            f"{h_row['Dynamics_YoY']*100:+.1f}% YoY | "
+                            f"Prof: {h_row['Profitability']*100:.1f}% | "
+                            f"Bankrupt: {h_row['Bankruptcy_Rate']*100:.2f}%\n")
+        
+        # Prepare rich context
+        metrics = f"""
+        Current Year (2024) Snapshot:
+        - Revenue: {row['Revenue']:,.2f} MLN PLN
+        - Revenue YoY Change: {row['Dynamics_YoY']*100:.2f}%
+        - Profitability (share of profitable cos): {row['Profitability']*100:.2f}%
+        - Bankruptcy Rate: {row['Bankruptcy_Rate']*100:.2f}% (Count: {row['Bankruptcy_Count']})
+        - Total Entities: {row['Entity_Count']}
+        - S&T Score: Stability={row['Stability_Score']:.1f}, Transformation={row['Transformation_Score']:.1f}
+        
+        {history_str}
+        """
+        
+        print(f"Processing: {industry_name} ({pkd_code})...")
         debates[pkd_code] = generate_debate_content(industry_name, status, metrics)
         
-        # Rate limit protection (simple)
+        # Simple rate limiting for free tier
         if API_KEY:
-            time.sleep(1.0)
+            time.sleep(5.0)
         
     # Save to JSON
     output_path = os.path.join(assets_path, 'ai_debates.json')
