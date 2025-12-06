@@ -37,7 +37,10 @@ def load_and_process_real_data():
     indicators_map = {
         'GS Przychody ogółem ': 'Revenue',
         'PEN Liczba rentownych jednostek gospodarczych ': 'Profitable_Ent',
-        'EN Liczba jednostek gospodarczych ': 'Entity_Count'
+        'EN Liczba jednostek gospodarczych ': 'Entity_Count',
+        'NP Wynik finansowy netto (zysk netto) ': 'Net_Profit',
+        'LTL Zobowiązania długoterminowe ': 'Liabilities_Long',
+        'STL Zobowiązania krótkoterminowe ': 'Liabilities_Short'
     }
     
     df_fin = df_fin[df_fin['WSKAZNIK'].isin(indicators_map.keys())].copy()
@@ -91,6 +94,15 @@ def load_and_process_real_data():
     # Bankruptcy Rate %
     df_merged['Bankruptcy_Rate'] = (df_merged['Bankruptcy_Count'] / df_merged['Entity_Count']) * 100
     
+    # Fill Nans (Critical for sums)
+    df_merged['Revenue'] = df_merged['Revenue'].fillna(0)
+    df_merged['Net_Profit'] = df_merged['Net_Profit'].fillna(0)
+    df_merged['Liabilities_Long'] = df_merged['Liabilities_Long'].fillna(0)
+    df_merged['Liabilities_Short'] = df_merged['Liabilities_Short'].fillna(0)
+    
+    # Calculate Total Debt
+    df_merged['Total_Debt'] = df_merged['Liabilities_Long'] + df_merged['Liabilities_Short']
+
     # YoY Dynamics
     df_merged.sort_values(['PKD', 'Year'], inplace=True)
     df_merged['Revenue_Prev_Year'] = df_merged.groupby('PKD')['Revenue'].shift(1)
@@ -113,6 +125,8 @@ def load_and_process_real_data():
     # Fill Nans
     df_merged['Dynamics_YoY'] = df_merged['Dynamics_YoY'].fillna(0)
     df_merged['Profitability'] = df_merged['Profitability'].fillna(0)
+    df_merged['Total_Debt'] = df_merged['Total_Debt'].fillna(0)
+    df_merged['Net_Profit'] = df_merged['Net_Profit'].fillna(0)
     
     # Add Sector (Optional - could try to map from first 1-2 digits of PKD if map file allows, or ignore)
     # For now, let's categorize purely by PKD Number if no mapping

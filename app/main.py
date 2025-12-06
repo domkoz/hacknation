@@ -76,7 +76,7 @@ with st.sidebar:
         "Grupy (3 cyfry)": "L3",
         "Klasy (4 cyfry)": "L4"
     }
-    selected_level_label = st.radio("Poziom Szczegółowości:", list(level_map.keys()), index=1)
+    selected_level_label = st.radio("Poziom Szczegółowości:", list(level_map.keys()), index=0)
     selected_level = level_map[selected_level_label]
     
     # Filter Logic
@@ -122,9 +122,63 @@ with st.sidebar:
     st.caption(f"Dane dla roku: {selected_year}. Liczba branż: {len(filtered_df)}")
 
 
+# --- HELPER: AGGREGATES DISPLAY ---
+def display_aggregates(df_subset, title="Globalny Wynik (Suma)"):
+    # Calculate aggregates
+    # Note: df_subset should be non-overlapping (e.g. only Sections, or only Divisions)
+    
+    total_revenue = df_subset['Revenue'].sum()
+    total_entities = df_subset['Entity_Count'].sum()
+    total_profit = df_subset.get('Net_Profit', pd.Series(0)).sum()
+    total_debt = df_subset.get('Total_Debt', pd.Series(0)).sum()
+    
+    # Weighted Averages / Ratios
+    # Profitability Margin = Total Net Profit / Total Revenue
+    avg_profitability = (total_profit / total_revenue * 100) if total_revenue else 0
+    
+    # Bankruptcy Rate = Total Bankruptcies / Total Entities
+    # We need bankruptcy count (reverse calculate if not present or sum if present)
+    # Loader output has 'Bankruptcy_Count'
+    if 'Bankruptcy_Count' in df_subset.columns:
+        total_bankrupt = df_subset['Bankruptcy_Count'].sum()
+    else:
+        # Fallback approximation from rate
+        total_bankrupt = (df_subset['Bankruptcy_Rate'] * df_subset['Entity_Count'] / 100).sum()
+        
+    avg_bankruptcy_rate = (total_bankrupt / total_entities * 100) if total_entities else 0
+    
+    # Dynamics (Revenue Weighted?)
+    # Sum(Current Rev) vs Sum(Prev Rev)
+    # We need RevPrev.
+    # We have 'Revenue' and 'Dynamics_YoY'. RevPrev = Rev / (1+Dyn).
+    # Be careful with Dyn=-1 (div 0).
+    # Safe mult: RevPrev = Rev / (1 + Dyn)
+    # But Dyn can be NaN. Use 0.
+    
+    # Vectorized rev prev calculation
+    revs = df_subset['Revenue']
+    dyns = df_subset['Dynamics_YoY']
+    # Avoid division by zero issues
+    prev_revs = revs / (1 + dyns)
+    total_prev_rev = prev_revs.sum()
+    
+    agg_dynamics = ((total_revenue - total_prev_rev) / total_prev_rev * 100) if total_prev_rev else 0
+    
+    # Display
+    st.markdown(f"#### 📊 {title}")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Wielkość (Przychody)", f"{total_revenue/1000:,.1f} mld PLN", f"{agg_dynamics:+.1f}% r/r")
+    c2.metric("Rentowność (Marża)", f"{avg_profitability:.2f}%", help="Zysk Netto / Przychody")
+    c3.metric("Zadłużenie", f"{total_debt/1000:,.1f} mld PLN", help="Zobowiązania Długo + Krótkoterminowe")
+    c4.metric("Ryzyko (Upadłości)", f"{avg_bankruptcy_rate:.2f}%", f"{total_bankrupt:,.0f} podmiotów", delta_color="inverse")
+    st.divider()
+
 # --- MAIN LAYOUT ---
 st.title(f"S&T Index ({selected_year})")
 st.markdown("### `System Diagnostyki Branżowej AI PKO BP` (Real Data)")
+
+# DISPLAY GLOBAL AGGREGATES FOR CURRENT SELECTION
+display_aggregates(filtered_df, title=f"Agregat dla: {selected_level_label} | {selected_sector}")
 
 col_main, col_details = st.columns([2, 1])
 
@@ -178,8 +232,8 @@ with col_main:
     fig.update_layout(
         xaxis_title="Stability Score (Fundament Finansowy)",
         yaxis_title="Transformation Score (Potencjał + Hype)",
-        xaxis=dict(range=[0, 100]),
-        yaxis=dict(range=[0, 100]),
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),
         height=700,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
         plot_bgcolor='rgba(0,0,0,0)',
@@ -280,6 +334,29 @@ while current_selection_pkd and level_depth < max_depth:
     current_row = current_row_df.iloc[0]
     st.markdown(f"### 📉 Poziom {level_depth + 1}: `{current_row['Industry_Name']}`")
     
+    # --- METRICS FOR CURRENT LEVEL ---
+    # Use pre-calculated values from the row (as source data is already aggregated)
+    lev_rev = current_row['Revenue']
+    lev_dyn = current_row['Dynamics_YoY']
+    lev_profit = current_row.get('Net_Profit', 0)
+    lev_debt = current_row.get('Total_Debt', 0)
+    lev_risk = current_row['Bankruptcy_Rate']
+    lev_bankrupt_count = current_row.get('Bankruptcy_Count', 0)
+    
+    # Margin calculation if not present as col (Percent Profitability in col is share of profitable entities, NOT margin)
+    # Wait, 'Profitability' in df is "Share of Profitable Entities".
+    # User asked for "Marża (Zysk/Przychody)".
+    # I have Net_Profit now. So I can Calc Margin.
+    lev_margin = (lev_profit / lev_rev * 100) if lev_rev else 0
+    
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Wielkość", f"{lev_rev/1000:,.1f} mld PLN", f"{lev_dyn*100:+.1f}% r/r")
+    m2.metric("Marża Zysku", f"{lev_margin:.2f}%", f"Zysk: {lev_profit/1000:,.1f} mld")
+    m3.metric("Zadłużenie", f"{lev_debt/1000:,.1f} mld PLN")
+    m4.metric("Ryzyko (Upadłości)", f"{lev_risk:.2f}%", f"{lev_bankrupt_count:.0f} podmiotów", delta_color="inverse")
+    
+    st.divider()
+    
     col_hist, col_sub = st.columns(2)
     
     # 1. HISTORY CHART
@@ -358,8 +435,8 @@ while current_selection_pkd and level_depth < max_depth:
             ))
             
             fig_sub.update_layout(
-                xaxis=dict(range=[0, 100], showgrid=False, zeroline=False),
-                yaxis=dict(range=[0, 100], showgrid=False, zeroline=False),
+                xaxis=dict(autorange=True, showgrid=False, zeroline=False),
+                yaxis=dict(autorange=True, showgrid=False, zeroline=False),
                 height=300,
                 margin=dict(l=0,r=0,t=0,b=0),
                 paper_bgcolor='rgba(0,0,0,0)',
