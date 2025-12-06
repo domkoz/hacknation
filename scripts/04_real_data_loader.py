@@ -41,102 +41,68 @@ def load_and_process_real_data():
         'NP Wynik finansowy netto (zysk netto) ': 'Net_Profit',
         'LTL Zobowiązania długoterminowe ': 'Liabilities_Long',
         'STL Zobowiązania krótkoterminowe ': 'Liabilities_Short',
-        'C Środki pieniężne i pap. wart. ': 'Cash'
+        'C Środki pieniężne i pap. wart. ': 'Cash',
+        'IO Wartość nakładów inwestycyjnych ': 'Investment'
     }
     
     df_fin = df_fin[df_fin['WSKAZNIK'].isin(indicators_map.keys())].copy()
     
     # Melt years
-    # Columns are PKD;NAZWA_PKD;NUMER_NAZWA_PKD;WSKAZNIK;2005;...;2024
     id_vars = ['PKD', 'NAZWA_PKD', 'NUMER_NAZWA_PKD', 'WSKAZNIK']
     value_vars = [str(y) for y in range(2005, 2025)]
-    
-    # Check if columns exist (sometimes header might have spaces)
     existing_years = [c for c in value_vars if c in df_fin.columns]
     
     df_melt = df_fin.melt(id_vars=id_vars, value_vars=existing_years, var_name='Year', value_name='Value')
     
     # Clean Values
+    def clean_currency_string(x):
+        if isinstance(x, str):
+            x = x.replace(' ', '').replace('\xa0', '').replace(',', '.')
+        try:
+            return float(x)
+        except:
+            return np.nan
+            
     df_melt['Value'] = df_melt['Value'].apply(clean_currency_string)
     df_melt['Year'] = df_melt['Year'].astype(int)
     
-    # Pivot to get indicators as columns
+    # Pivot
     df_pivot = df_melt.pivot_table(
         index=['PKD', 'NAZWA_PKD', 'Year'], 
         columns='WSKAZNIK', 
         values='Value', 
         aggfunc='first'
     ).reset_index()
-    
-    # Rename columns using map (handling potential whitespace in keys)
+
+    # Rename columns
     df_pivot.columns = [indicators_map.get(c, c) for c in df_pivot.columns]
     
     # 2. Load Bankruptcy Data
     print("Loading Bankruptcy Data...")
     df_krz = pd.read_csv(krz_path, sep=';')
-    # Header: rok;pkd;liczba_upadlosci
     df_krz.columns = ['Year', 'PKD', 'Bankruptcy_Count']
-    
-    # Clean Year and PKD
     df_krz['Year'] = pd.to_numeric(df_krz['Year'], errors='coerce')
     df_krz = df_krz.dropna(subset=['Year'])
     df_krz['Year'] = df_krz['Year'].astype(int)
     
-    # Merge
-    print("Merging Datasets with PKD Normalization...")
-    # df_merged = pd.merge(df_pivot, df_krz, on=['PKD', 'Year'], how='left')
-    
     # --- ROBUST MERGE LOGIC ---
-    # 1. Clean KRZ PKD codes
-    # Remove 'Z', spaces. e.g. "4120Z" -> "4120"
     df_krz['pkd_clean'] = df_krz['PKD'].astype(str).str.replace('Z', '').str.replace(' ', '').str.strip()
-    
-    # 2. Clean Financial PKD codes
-    # Remove dots. e.g. "41." -> "41", "41.2" -> "412", "01.11" -> "0111"
     df_pivot['pkd_clean'] = df_pivot['PKD'].astype(str).str.replace('.', '', regex=False).str.strip()
     
-    # 3. Create Aggregations for KRZ (Risk) at L2, L3, L4 levels
-    # Aggregation dictionaries by Year and PKD prefix
-    
-    # We need a function to map a financial row to a bankruptcy count
-    # Strategy:
-    # - If Fin row is L2 (len 2, e.g. "41"), sum all KRZ starting with "41"
-    # - If Fin row is L3 (len 3, e.g. "412"), sum all KRZ starting with "412"
-    # - If Fin row is L4 (len 4), sum all KRZ starting with "4120"
-    
-    # Ideally, we pre-calculate these groups to avoid O(N*M).
-    
-    # Group KRZ by Year and Full 4-digit (or max available)
-    # Actually, simpler: Explode KRZ to L2, L3, L4 keys? 
-    # Or just iterate? No, dataframe merge is faster.
-    
-    # Let's create a "Risk Lookup" DataFrame that contains counts for ALL potential prefixes.
     risk_rows = []
-    
-    # Group by Year + pkd_clean first to dedup/sum if multiple entries
     base_risk = df_krz.groupby(['Year', 'pkd_clean'])['Bankruptcy_Count'].sum().reset_index()
     
-    # Now generate L2, L3, L4 sums
-    # Get all unique years
-    years = base_risk['Year'].unique()
-    
-    # Optimize:
-    # Expand base_risk to include truncated versions
     base_risk['L2'] = base_risk['pkd_clean'].str[:2]
     base_risk['L3'] = base_risk['pkd_clean'].str[:3]
     base_risk['L4'] = base_risk['pkd_clean'].str[:4]
     
-    # Group by L2
     g2 = base_risk.groupby(['Year', 'L2'])['Bankruptcy_Count'].sum().reset_index().rename(columns={'L2': 'pkd_match'})
-    # Group by L3
     g3 = base_risk.groupby(['Year', 'L3'])['Bankruptcy_Count'].sum().reset_index().rename(columns={'L3': 'pkd_match'})
-    # Group by L4
     g4 = base_risk.groupby(['Year', 'L4'])['Bankruptcy_Count'].sum().reset_index().rename(columns={'L4': 'pkd_match'})
     
-    # Concatenate all potential matches
     risk_lookup = pd.concat([g2, g3, g4]).drop_duplicates(subset=['Year', 'pkd_match'])
     
-    # --- ADD SECTION AGGREGATION ---
+    # SECTION AGGREGATION
     section_map = {
         'SEK_A': ['01', '02', '03'],
         'SEK_B': ['05', '06', '07', '08', '09'],
@@ -159,33 +125,20 @@ def load_and_process_real_data():
         'SEK_S': ['94', '95', '96']
     }
     
-    # Generate explicit SEK_ rows for risk lookup
     section_rows = []
-    
-    # We need to aggregate from base_risk (which has L2 computed as 'L2' col)
-    # We must be careful not to double count if we just sum?
-    # base_risk has 'pkd_clean' (full granular). We should sum from base_risk based on prefix.
-    
-    # Optimization: base_risk's 'L2' column is perfect for this.
-    # Group base_risk by Year and L2 first to get Division totals.
     yearly_division_risk = base_risk.groupby(['Year', 'L2'])['Bankruptcy_Count'].sum().reset_index()
     
     for sek_code, divisions in section_map.items():
-        # Clean divisions list (ensure 2 digits string)
         divs = [str(d).zfill(2) for d in divisions]
-        
-        # Filter rows where L2 is in divs
         mask = yearly_division_risk['L2'].isin(divs)
         sek_data = yearly_division_risk[mask].groupby('Year')['Bankruptcy_Count'].sum().reset_index()
-        sek_data['pkd_match'] = sek_code # Key for join
+        sek_data['pkd_match'] = sek_code
         section_rows.append(sek_data)
         
     if section_rows:
-        risk_sections = pd.concat(section_rows)
-        # Add to lookup
-        risk_lookup = pd.concat([risk_lookup, risk_sections])
+        risk_lookup = pd.concat([risk_lookup, pd.concat(section_rows)])
     
-    # 4. Merge
+    print("Merging Datasets...")
     df_merged = pd.merge(
         df_pivot, 
         risk_lookup, 
@@ -193,28 +146,29 @@ def load_and_process_real_data():
         right_on=['Year', 'pkd_match'], 
         how='left'
     )
-    
-    # Fill NAs
     df_merged['Bankruptcy_Count'] = df_merged['Bankruptcy_Count'].fillna(0)
-    
-    # Drop temp cols
     df_merged.drop(columns=['pkd_clean', 'pkd_match'], inplace=True, errors='ignore')
 
+    # 3. Calculate Derived Metrics (Update)
     
-    # 3. Calculate Derived Metrics
-    
-    # Fill Nans (Critical for sums)
-    df_merged['Revenue'] = df_merged['Revenue'].fillna(0)
-    df_merged['Net_Profit'] = df_merged['Net_Profit'].fillna(0)
-    df_merged['Liabilities_Long'] = df_merged['Liabilities_Long'].fillna(0)
-    df_merged['Liabilities_Short'] = df_merged['Liabilities_Short'].fillna(0)
-    df_merged['Cash'] = df_merged['Cash'].fillna(0)
+    # Fill Nans
+    # Keep columns that exist
+    for col in ['Revenue', 'Net_Profit', 'Liabilities_Long', 'Liabilities_Short', 'Cash', 'Investment']:
+        if col in df_merged.columns:
+             df_merged[col] = df_merged[col].fillna(0)
+             
+    # Fill Nans (Specific)
+    df_merged['Revenue'] = df_merged.get('Revenue', pd.Series(0, index=df_merged.index)).fillna(0)
+    df_merged['Investment'] = df_merged.get('Investment', pd.Series(0, index=df_merged.index)).fillna(0)
     
     # Calculate Total Debt
     df_merged['Total_Debt'] = df_merged['Liabilities_Long'] + df_merged['Liabilities_Short']
 
+    # 1. Capex Intensity (Investment / Revenue)
+    df_merged['Capex_Intensity'] = df_merged.apply(lambda x: (x['Investment'] / x['Revenue'] * 100) if x['Revenue'] != 0 else 0, axis=1)
+
+
     # 1. Net Profit Margin (%)
-    # Avoid division by zero
     df_merged['Net_Profit_Margin'] = df_merged.apply(lambda x: (x['Net_Profit'] / x['Revenue'] * 100) if x['Revenue'] != 0 else 0, axis=1)
 
     # 2. Debt Burden Ratio (Debt/Revenue)
@@ -226,84 +180,87 @@ def load_and_process_real_data():
     # 5. Relative Risk Ratio (Bankruptcies per 1000 entities)
     df_merged['Risk_Per_1000'] = df_merged.apply(lambda x: (x['Bankruptcy_Count'] / x['Entity_Count'] * 1000) if x['Entity_Count'] != 0 else 0, axis=1)
 
-    # Profitability % (Share of profitable entities - existing metric, keeping it)
+    # Profitability %
     df_merged['Profitability'] = df_merged['Profitable_Ent'] / df_merged['Entity_Count']
     
-    # Bankruptcy Rate % (for backward compatibility)
+    # Bankruptcy Rate %
     df_merged['Bankruptcy_Rate'] = (df_merged['Bankruptcy_Count'] / df_merged['Entity_Count']) * 100
     
-    # Fill Nans (Critical for sums)
-    df_merged['Revenue'] = df_merged['Revenue'].fillna(0)
-    df_merged['Net_Profit'] = df_merged['Net_Profit'].fillna(0)
-    df_merged['Liabilities_Long'] = df_merged['Liabilities_Long'].fillna(0)
-    df_merged['Liabilities_Short'] = df_merged['Liabilities_Short'].fillna(0)
-    
-    # Calculate Total Debt
-    df_merged['Total_Debt'] = df_merged['Liabilities_Long'] + df_merged['Liabilities_Short']
-
     # YoY Dynamics
     df_merged.sort_values(['PKD', 'Year'], inplace=True)
     df_merged['Revenue_Prev_Year'] = df_merged.groupby('PKD')['Revenue'].shift(1)
     df_merged['Dynamics_YoY'] = (df_merged['Revenue'] - df_merged['Revenue_Prev_Year']) / df_merged['Revenue_Prev_Year']
     
-    # 4. Filter and Final Polish
     # Filter out empty sectors or years with bad data
     df_merged = df_merged.dropna(subset=['Revenue', 'Entity_Count'])
     
-    # Map to project column names for compatibility
-    # Project expects: 'PKD_Code', 'Industry_Name', 'Revenue_2024', 'Profitability', 'Dynamics_YoY' ...
-    # Since we have time series, we'll keep 'Year' and just rename base cols.
-    
+    # Normalize Rename
     df_merged.rename(columns={
         'PKD': 'PKD_Code',
-        'NAZWA_PKD': 'Industry_Name',
-        'Revenue': 'Revenue'
+        'NAZWA_PKD': 'Industry_Name'
     }, inplace=True)
     
     # Fill Nans
-    df_merged['Dynamics_YoY'] = df_merged['Dynamics_YoY'].fillna(0)
-    df_merged['Profitability'] = df_merged['Profitability'].fillna(0)
-    df_merged['Total_Debt'] = df_merged['Total_Debt'].fillna(0)
-    df_merged['Net_Profit'] = df_merged['Net_Profit'].fillna(0)
-    df_merged['Cash'] = df_merged['Cash'].fillna(0)
-    df_merged['Net_Profit_Margin'] = df_merged['Net_Profit_Margin'].fillna(0)
-    df_merged['Debt_to_Revenue'] = df_merged['Debt_to_Revenue'].fillna(0)
-    df_merged['Cash_Ratio'] = df_merged['Cash_Ratio'].fillna(0)
-    df_merged['Risk_Per_1000'] = df_merged['Risk_Per_1000'].fillna(0)
-    
-    # Add Sector (Optional - could try to map from first 1-2 digits of PKD if map file allows, or ignore)
-    # For now, let's categorize purely by PKD Number if no mapping
-    # A=01-03, C=10-33 etc. We can use a simple generic mapper or just leave it.
-    df_merged['Sector'] = 'Ogólny' 
-    
-    # --- CALCULATE S&T SCORE (Backwards Compatible Logic) ---
-    # Normalizing (Per Year to keep relative scale correct!)
-    
+    for col in ['Dynamics_YoY', 'Profitability', 'Total_Debt', 'Net_Profit', 'Cash', 'Net_Profit_Margin', 'Debt_to_Revenue', 'Cash_Ratio', 'Risk_Per_1000', 'Bankruptcy_Rate']:
+        if col in df_merged.columns:
+            df_merged[col] = df_merged[col].fillna(0)
+
+    # --- MERGE ARXIV HYPE DATA ---
+    import json
+    arxiv_path = 'data/arxiv_hype.json'
+    arxiv_map = {}
+    if os.path.exists(arxiv_path):
+        with open(arxiv_path, 'r') as f:
+            arxiv_map = json.load(f)
+            
+    # Helper to map PKD to Section Code for ArXiv
+    # We already define section_map in this script! Let's reuse the reverse mapping.
+    # section_map: 'SEK_A': ['01', '02', '03']
+    pkd_to_section = {}
+    for sek, divs in section_map.items():
+        for d in divs:
+            pkd_to_section[d] = sek
+            
+    def get_arxiv_score(pkd_code):
+        code_str = str(pkd_code).strip()
+        # Direct match for Section codes (SEK_A etc.)
+        if code_str in arxiv_map:
+            return arxiv_map[code_str]
+            
+        # Extract first 2 digits for Sub-sectors
+        prefix = code_str.replace('.', '').strip()[:2]
+        if prefix in pkd_to_section:
+            sek = pkd_to_section[prefix]
+            return arxiv_map.get(sek, 0)
+        return 0
+
+    df_merged['Arxiv_Papers'] = df_merged['PKD_Code'].apply(get_arxiv_score)
+
+    # --- CALCULATE S&T SCORE ---
     def calculate_scores(group):
-        # Simple Min-Max scaler within the year
         def norm(s):
-            if s.max() == s.min(): return 0
+            if s.max() == s.min(): return pd.Series(0.5, index=s.index)
             return (s - s.min()) / (s.max() - s.min())
         
         group['Norm_Profit'] = norm(group['Profitability'])
         group['Norm_Dynamics'] = norm(group['Dynamics_YoY'])
         
-        # Stability = (0.6 * Profit) + (0.4 * Dynamics) - simpler formula for real data
+        # Stability (Static)
         group['Stability_Score'] = ((0.6 * group['Norm_Profit']) + (0.4 * group['Norm_Dynamics'])) * 100
+        
+        # TRANSFORMATION SCORE (HYBRID: CAPEX + ARXIV)
+        group['Norm_Capex'] = norm(group['Capex_Intensity'])
+        group['Norm_Arxiv'] = norm(group['Arxiv_Papers'])
+        
+        # 50% Money (Capex), 50% Science (ArXiv)
+        group['Transformation_Score'] = ((0.5 * group['Norm_Capex']) + (0.5 * group['Norm_Arxiv'])) * 100
         
         return group
 
     df_processed = df_merged.groupby('Year').apply(calculate_scores).reset_index(drop=True)
     
-    # Transformation Score ?
-    # We don't have real Google Trends for all these PKDs.
-    # Strategy: Use Dynamics as a proxy for "Growth Potential" OR Mock it again for missing data.
-    # Let's reuse Dynamics for Transformation heavily + Random factor to simulate "AI Hype"
-    np.random.seed(42)
-    df_processed['AI_Hype_Mock'] = np.random.rand(len(df_processed))
-    
-    # Transformation = (0.7 * Norm_Dynamics) + (0.3 * AI_Hype)
-    df_processed['Transformation_Score'] = ((0.7 * df_processed['Norm_Dynamics']) + (0.3 * df_processed['AI_Hype_Mock'])) * 100
+    # Remove Mock Override logic
+
     
     # Status Logic
     def get_status(row):

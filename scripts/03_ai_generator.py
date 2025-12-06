@@ -45,13 +45,13 @@ def generate_debate_content(industry_name, status, metrics):
     - Key Metrics & History: 
     {metrics}
     
-    Persona 1: CRO (Chief Risk Officer). Skeptical, conservative. MUST QUOTE SPECIFIC NUMBERS (e.g. "Revenue dropped by X%", "Bankruptcy rate is Y%"). Warns about negative trends in history.
-    Persona 2: CSO (Chief Strategy Officer). Optimistic, visionary. MUST QUOTE SPECIFIC NUMBERS (e.g. "Profitability of Z%", "Growth in 2021"). Focuses on transformation potential despite risks.
+    Persona 1: CRO (Chief Risk Officer). Skeptical, matter-of-fact, focused on hard risks. MUST QUOTE SPECIFIC NUMBERS (e.g. "Debt ratio of X", "Bankruptcy rate is Y%", "Margins dropped to Z%"). Warns about liquidity and debt.
+    Persona 2: CSO (Chief Strategy Officer). Visionary but data-driven. MUST QUOTE SPECIFIC NUMBERS (e.g. "Capex intensity of X%", "ArXiv papers count: Y"). Focuses on transformation potential (Investment + Science) vs stagnation.
     
     Generate a JSON response with exactly this structure (no markdown formatting):
     {{
-        "CRO_Opinion": "3-4 sentences. Start with a strong warning. Use data from the context to justify fear.",
-        "CSO_Opinion": "3-4 sentences. Start with a strategic opportunity. Use data to justify growth potential.",
+        "CRO_Opinion": "3-4 sentences. Concrete, matter-of-fact risk assessment. Focus on financial stability (Liquidity, Debt, Margins).",
+        "CSO_Opinion": "3-4 sentences. Concrete, strategic assessment. Focus on future potential (Investment, Innovation/ArXiv) and growth.",
         "Final_Verdict": "BUY" or "HOLD" or "REJECT"
     }}
     
@@ -60,7 +60,8 @@ def generate_debate_content(industry_name, status, metrics):
     - If status is OPPORTUNITY, Verdict must be BUY.
     - Else HOLD or BUY based on your assessment.
     - LANGUAGE: POLISH.
-    - Be detailed and specific. Do not use generic phrases.
+    - Tone: Professional, concise, "matter-of-fact" (rzeczowy). No marketing fluff.
+    - Reference specific metrics from the context.
     """
     
     # Try Real AI
@@ -141,12 +142,20 @@ def generate_debates():
         # Prepare rich context
         metrics = f"""
         Current Year (2024) Snapshot:
-        - Revenue: {row['Revenue']:,.2f} MLN PLN
-        - Revenue YoY Change: {row['Dynamics_YoY']*100:.2f}%
-        - Profitability (share of profitable cos): {row['Profitability']*100:.2f}%
-        - Bankruptcy Rate: {row['Bankruptcy_Rate']*100:.2f}% (Count: {row['Bankruptcy_Count']})
-        - Total Entities: {row['Entity_Count']}
-        - S&T Score: Stability={row['Stability_Score']:.1f}, Transformation={row['Transformation_Score']:.1f}
+        - Revenue: {row.get('Revenue', 0):,.2f} MLN PLN
+        - Revenue YoY Change: {row.get('Dynamics_YoY', 0)*100:.2f}%
+        - Net Profit Margin: {row.get('Net_Profit_Margin', 0):.2f}%
+        - Profitability (share of profitable cos): {row.get('Profitability', 0)*100:.2f}%
+        
+        - Cash Ratio: {row.get('Cash_Ratio', 0):.2f}
+        - Debt to Revenue: {row.get('Debt_to_Revenue', 0):.2f}x
+        - Bankruptcy Rate: {row.get('Bankruptcy_Rate', 0):.2f}%
+        
+        - Investment (Capex): {row.get('Investment', 0):,.1f} MLN PLN
+        - Capex Intensity: {row.get('Capex_Intensity', 0):.2f}%
+        - Innovation (ArXiv Papers): {row.get('Arxiv_Papers', 0)}
+        
+        - S&T Score: Stability={row.get('Stability_Score', 0):.1f}, Transformation={row.get('Transformation_Score', 0):.1f}
         
         {history_str}
         """

@@ -258,12 +258,13 @@ if view_mode == "Analiza Ryzyka (Upadłości)":
     2.  **Zyskowność:** Marża Netto oraz % Rentownych Firm.
     3.  **Bezpieczeństwo:** Płynność (Cash Ratio) minus Zadłużenie (Debt Ratio) minus Ryzyko Upadłości.
 
-    **Oś Y: Transformation Score (Potencjał Transformacji)**
-    *Ocena gotowości branży na zmiany technologiczne i rynkowe.*
-    Obecnie bazuje na modelu symulacyjnym (w przyszłości: analiza patentów i inwestycji R&D).
+    **Oś Y: Transformation Score (Inwestycje + Innowacje)**
+    *Mierzy potencjał przyszłościowy branży.*
+    Hybrydowa ocena: 50% Intensywność Inwestycyjna (Capex) + 50% Gotowość Naukowa (Publikacje AI z ArXiv).
+    Pokazuje, kto wydaje pieniądze (Inwestycje) i kto ma zaplecze badawcze (Science).
 
     **Wielkość Bąbelka:** Przychody ogółem branży.
-    **Kolor:** Status (CRITICAL = Wysokie Ryzyko Upadłości, OPPORTUNITY = Wysoki Potencjał).
+    **Kolor:** Status (CRITICAL = Wysokie Ryzyko Upadłości).
     """)
     # RISK HEATMAP
     # X: Dynamics (Growth/Shrinkage)
@@ -413,7 +414,7 @@ with col_main:
 
     fig.update_layout(
         xaxis_title="Stability Score (Fundament Finansowy)",
-        yaxis_title="Transformation Score (Potencjał + Hype)",
+        yaxis_title="Transformation Score (Inwestycje + ArXiv AI)",
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),
         height=700,
@@ -464,20 +465,40 @@ with col_details:
             
             # Detailed Breakdown
             with st.expander("📊 Szczegóły Wyliczeń (Dynamiczne)"):
+                # Helper for colors
+                def color_val(val, inverse=False, is_percent=False):
+                    display_val = val * 100 if is_percent else val
+                    suffix = "%" if is_percent else ""
+                    
+                    if inverse:
+                        color = "#ff4b4b" if val > 0 else "#2ecc71" # Red if > 0 (Risk/Debt), Green if <= 0
+                    else:
+                        color = "#2ecc71" if val > 0 else "#ff4b4b" # Green if > 0, Red if <= 0
+                        
+                    # Neutral for 0
+                    if abs(val) < 0.0001: color = "#888"
+                        
+                    return f'<span style="color:{color}; font-weight:bold;">{display_val:+.2f}{suffix}</span>'
+
                 st.markdown(f"""
                 **Twoje Wagi Stability Score:**
-                - Wzrost: {w_growth} dev
-                - Zyskowność: {w_profit} dev
-                - Bezpieczeństwo: {w_safety} dev
+                - Wzrost: {w_growth}
+                - Zyskowność: {w_profit}
+                - Bezpieczeństwo: {w_safety}
                 
                 **Składowe (Wartości Surowe):**
-                - Dynamika przychodów: `{selected_row.get('Dynamics_YoY', 0)*100:+.2f}%`
-                - Marża Netto: `{selected_row.get('Net_Profit_Margin', 0):.2f}%`
-                - Zyskowność (% firm): `{selected_row.get('Profitability', 0)*100:.1f}%`
-                - Płynność (Cash Ratio): `{selected_row.get('Cash_Ratio', 0):.2f}`
-                - Zadłużenie (Debt/Rev): `{selected_row.get('Debt_to_Revenue', 0):.2f}x`
-                - Ryzyko (Upadłości): `{selected_row.get('Bankruptcy_Rate', 0):.2f}%`
-                """)
+                - Dynamika przychodów: {color_val(selected_row.get('Dynamics_YoY', 0), is_percent=True)}
+                - Marża Netto: {color_val(selected_row.get('Net_Profit_Margin', 0), is_percent=False)}%
+                - Zyskowność (% firm): {color_val(selected_row.get('Profitability', 0), is_percent=True)}
+                - Płynność (Cash Ratio): {color_val(selected_row.get('Cash_Ratio', 0), is_percent=False)}
+                - Zadłużenie (Debt/Rev): {color_val(selected_row.get('Debt_to_Revenue', 0), inverse=True)}x
+                - Ryzyko (Upadłości): {color_val(selected_row.get('Bankruptcy_Rate', 0), inverse=True, is_percent=False)}%
+                
+                **Transformacja (Inwestycje + Science):**
+                - Nakłady: **{selected_row.get('Investment', 0):,.1f} mln PLN**
+                - Intensywność (Capex/Rev): {color_val(selected_row.get('Capex_Intensity', 0), is_percent=False)}%
+                - Publikacje AI (ArXiv): **{int(selected_row.get('Arxiv_Papers', 0))}**
+                """, unsafe_allow_html=True)
             
             st.divider()
             
