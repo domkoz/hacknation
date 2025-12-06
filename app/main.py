@@ -69,6 +69,18 @@ with st.sidebar:
     # Filter by Year first
     df = df_all[df_all['Year'] == selected_year].copy()
     
+    # --- VIEW SELECTOR ---
+    view_mode = st.radio("Tryb Widoku:", ["Macierz S&T (Główna)", "Analiza Ryzyka (Upadłości)"], index=0)
+    
+    # --- SCORE CONFIGURATION ---
+    with st.expander("⚙️ Konfiguracja Modelu S&T"):
+        st.caption("Dostosuj wagi komponentów dla Stability Score:")
+        w_growth = st.slider("Wzrost (Dynamika)", 0.0, 10.0, 4.0, 0.5)
+        w_profit = st.slider("Zyskowność (Marża)", 0.0, 10.0, 6.0, 0.5)
+        w_safety = st.slider("Bezpieczeństwo (Dług/Płynność)", 0.0, 10.0, 3.0, 0.5)
+        
+    st.divider()
+
     # --- LEVEL OF DETAIL ---
     level_map = {
         "Sekcje (Makro)": "L1",
@@ -113,11 +125,54 @@ with st.sidebar:
     min_rev_val = int(df['Revenue'].min())
     max_rev_val = int(df['Revenue'].max())
     
-    # Defaults: Show top 50% by default if possible, or full range
+    # Filter by Revenue first (to avoid skews from micro entities in normalization)
     revenue_threshold = st.slider("Minimalne Przychody (mln PLN):", min_value=min_rev_val, max_value=max_rev_val, value=min_rev_val)
+    filtered_df = filtered_df[filtered_df['Revenue'] >= revenue_threshold].copy()
     
-    filtered_df = filtered_df[filtered_df['Revenue'] >= revenue_threshold]
+    # --- DYNAMIC STABILITY SCORE CALCULATION ---
+    # We recalculate Stability Score based on:
+    # 1. Growth: Dynamics_YoY (Higher is better)
+    # 2. Profitability: Combine Profitability (%) and Net_Profit_Margin (Higher is better)
+    # 3. Safety: Combine Cash_Ratio (High is better) - Debt_to_Revenue (Low is better) - Bankruptcy_Rate (Low is better)
+    
+    # Helper for MinMax Normalization (0-1)
+    def normalize(series):
+        if series.max() == series.min():
+            return pd.Series(0.5, index=series.index) # Neutral if no variance
+        return (series - series.min()) / (series.max() - series.min())
 
+    if not filtered_df.empty:
+        # 1. Growth
+        norm_growth = normalize(filtered_df['Dynamics_YoY'])
+        
+        # 2. Profitability (Mix of Share of Profitable Entities and Net Margin)
+        # Net Margin can be negative. Normalize carefully.
+        norm_margin = normalize(filtered_df['Net_Profit_Margin'])
+        norm_prof_share = normalize(filtered_df['Profitability'])
+        norm_profitability = (norm_margin + norm_prof_share) / 2
+        
+        # 3. Safety
+        # Cash Ratio -> Maximize
+        norm_cash = normalize(filtered_df['Cash_Ratio'])
+        
+        # Debt Ratio -> Minimize (1 - Norm)
+        norm_debt = 1 - normalize(filtered_df['Debt_to_Revenue'])
+        
+        # Risk -> Minimize (1 - Norm)
+        norm_risk = 1 - normalize(filtered_df['Bankruptcy_Rate']) # or Risk_Per_1000
+        
+        norm_safety = (norm_cash + norm_debt + norm_risk) / 3
+        
+        # Weighted Sum
+        total_weight = w_growth + w_profit + w_safety
+        if total_weight == 0: total_weight = 1 # Avoid div/0
+        
+        filtered_df['Stability_Score'] = (
+            (w_growth * norm_growth) + 
+            (w_profit * norm_profitability) + 
+            (w_safety * norm_safety)
+        ) / total_weight * 100
+        
     st.info("💡 **Instrukcja:** Kliknij w bąbelek na wykresie, aby zobaczyć debatę Zarządu.")
     st.caption(f"Dane dla roku: {selected_year}. Liczba branż: {len(filtered_df)}")
 
@@ -127,50 +182,60 @@ def display_aggregates(df_subset, title="Globalny Wynik (Suma)"):
     # Calculate aggregates
     # Note: df_subset should be non-overlapping (e.g. only Sections, or only Divisions)
     
+    # --- CALCULATE 5 KEY METRICS ---
+    
+    # 1. Total Revenue (Wielkość)
     total_revenue = df_subset['Revenue'].sum()
-    total_entities = df_subset['Entity_Count'].sum()
-    total_profit = df_subset.get('Net_Profit', pd.Series(0)).sum()
-    total_debt = df_subset.get('Total_Debt', pd.Series(0)).sum()
     
-    # Weighted Averages / Ratios
-    # Profitability Margin = Total Net Profit / Total Revenue
-    avg_profitability = (total_profit / total_revenue * 100) if total_revenue else 0
-    
-    # Bankruptcy Rate = Total Bankruptcies / Total Entities
-    # We need bankruptcy count (reverse calculate if not present or sum if present)
-    # Loader output has 'Bankruptcy_Count'
-    if 'Bankruptcy_Count' in df_subset.columns:
-        total_bankrupt = df_subset['Bankruptcy_Count'].sum()
-    else:
-        # Fallback approximation from rate
-        total_bankrupt = (df_subset['Bankruptcy_Rate'] * df_subset['Entity_Count'] / 100).sum()
-        
-    avg_bankruptcy_rate = (total_bankrupt / total_entities * 100) if total_entities else 0
-    
-    # Dynamics (Revenue Weighted?)
-    # Sum(Current Rev) vs Sum(Prev Rev)
-    # We need RevPrev.
-    # We have 'Revenue' and 'Dynamics_YoY'. RevPrev = Rev / (1+Dyn).
-    # Be careful with Dyn=-1 (div 0).
-    # Safe mult: RevPrev = Rev / (1 + Dyn)
-    # But Dyn can be NaN. Use 0.
-    
-    # Vectorized rev prev calculation
-    revs = df_subset['Revenue']
-    dyns = df_subset['Dynamics_YoY']
-    # Avoid division by zero issues
-    prev_revs = revs / (1 + dyns)
-    total_prev_rev = prev_revs.sum()
+    # 2. Revenue Dynamics (Wzrost)
+    # Weighted avg dynamics or Total Current Rev / Total Prev Rev - 1
+    # We need to reconstruct Total Prev Rev.
+    # RevPrev = Revenue / (1 + Dynamics_YoY)
+    current_revs = df_subset['Revenue']
+    current_dyns = df_subset['Dynamics_YoY']
+    # Avoid zero div
+    prev_revs = [r / (1 + d) if (not pd.isna(d) and d != -1) else r for r, d in zip(current_revs, current_dyns)]
+    total_prev_rev = sum(prev_revs)
     
     agg_dynamics = ((total_revenue - total_prev_rev) / total_prev_rev * 100) if total_prev_rev else 0
     
-    # Display
+    # 3. Net Profit Margin (Rentowność)
+    # Sum(Net Profit) / Sum(Revenue)
+    total_net_profit = df_subset.get('Net_Profit', pd.Series(0)).sum()
+    agg_net_margin = (total_net_profit / total_revenue * 100) if total_revenue else 0
+    
+    # 4. Debt Burden (Zadłużenie)
+    # Sum(Total Debt) / Sum(Revenue)
+    total_debt = df_subset.get('Total_Debt', pd.Series(0)).sum()
+    agg_debt_ratio = (total_debt / total_revenue) if total_revenue else 0
+    
+    # 5. Cash Ratio (Płynność)
+    # Sum(Cash) / Sum(Short Term Liabilities)
+    total_cash = df_subset.get('Cash', pd.Series(0)).sum()
+    total_short_liab = df_subset.get('Liabilities_Short', pd.Series(0)).sum()
+    agg_cash_ratio = (total_cash / total_short_liab) if total_short_liab else 0
+    
+    # 6. Relative Risk (Ryzyko)
+    # Sum(Bankruptcies) / Sum(Entities) * 100
+    if 'Bankruptcy_Count' in df_subset.columns:
+        total_bankrupt = df_subset['Bankruptcy_Count'].sum()
+    else:
+        total_bankrupt = (df_subset['Bankruptcy_Rate'] * df_subset['Entity_Count'] / 100).sum()
+    
+    total_entities = df_subset['Entity_Count'].sum()
+    agg_risk_percent = (total_bankrupt / total_entities * 100) if total_entities else 0
+    
+    
+    # Display 5 Cols
     st.markdown(f"#### 📊 {title}")
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Wielkość (Przychody)", f"{total_revenue/1000:,.1f} mld PLN", f"{agg_dynamics:+.1f}% r/r")
-    c2.metric("Rentowność (Marża)", f"{avg_profitability:.2f}%", help="Zysk Netto / Przychody")
-    c3.metric("Zadłużenie", f"{total_debt/1000:,.1f} mld PLN", help="Zobowiązania Długo + Krótkoterminowe")
-    c4.metric("Ryzyko (Upadłości)", f"{avg_bankruptcy_rate:.2f}%", f"{total_bankrupt:,.0f} podmiotów", delta_color="inverse")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    
+    c1.metric("Wielkość (Przychody)", f"{total_revenue/1000:,.1f} mld", f"{agg_dynamics:+.1f}% r/r")
+    c2.metric("Rentowność (Marża)", f"{agg_net_margin:.1f}%", help="Zysk Netto / Przychody")
+    c3.metric("Zadłużenie (Dług/Przychody)", f"{agg_debt_ratio:.2f}x", help="Dług / Przychody")
+    c4.metric("Płynność (Gotówka)", f"{agg_cash_ratio:.2f}", help="Gotówka / Zobowiązania Krótkie")
+    c5.metric("Ryzyko (Upadłości)", f"{agg_risk_percent:.2f}%", f"{total_bankrupt:,.0f} firm", delta_color="inverse", help="% Firm, które ogłosiły upadłość")
+    
     st.divider()
 
 # --- MAIN LAYOUT ---
@@ -181,6 +246,123 @@ st.markdown("### `System Diagnostyki Branżowej AI PKO BP` (Real Data)")
 display_aggregates(filtered_df, title=f"Agregat dla: {selected_level_label} | {selected_sector}")
 
 col_main, col_details = st.columns([2, 1])
+
+# --- RISK VIEW LOGIC ---
+if view_mode == "Analiza Ryzyka (Upadłości)":
+    st.markdown("### 🛡️ Radar Ryzyka: Upadłość vs Dynamika")
+    st.markdown("""
+    **Oś X: Stability Score (Stabilność - Dynamiczny)**
+    *Wynik obliczany w czasie rzeczywistym na podstawie Twoich wag (Pasek Boczny > Konfiguracja).*
+    Składa się z trzech filarów (znormalizowanych 0-100):
+    1.  **Wzrost:** Dynamika przychodów r/r.
+    2.  **Zyskowność:** Marża Netto oraz % Rentownych Firm.
+    3.  **Bezpieczeństwo:** Płynność (Cash Ratio) minus Zadłużenie (Debt Ratio) minus Ryzyko Upadłości.
+
+    **Oś Y: Transformation Score (Potencjał Transformacji)**
+    *Ocena gotowości branży na zmiany technologiczne i rynkowe.*
+    Obecnie bazuje na modelu symulacyjnym (w przyszłości: analiza patentów i inwestycji R&D).
+
+    **Wielkość Bąbelka:** Przychody ogółem branży.
+    **Kolor:** Status (CRITICAL = Wysokie Ryzyko Upadłości, OPPORTUNITY = Wysoki Potencjał).
+    """)
+    # RISK HEATMAP
+    # X: Dynamics (Growth/Shrinkage)
+    # Y: Bankruptcy Rate (Risk)
+    # Color: Debt / Revenue Ratio (Leverage) or just Debt
+    
+    # Prepare metrics
+    filtered_df['Leverage_Ratio'] = filtered_df.apply(
+        lambda x: (x['Total_Debt'] / x['Revenue']) if x['Revenue'] > 0 else 0, axis=1
+    )
+    # Cap Leverage for visualization (e.g. at 200%) to avoid outliers blowing up scale
+    filtered_df['Leverage_Vis'] = filtered_df['Leverage_Ratio'].clip(upper=5.0)
+    
+    fig_risk = go.Figure()
+    
+    # Scatter Trace
+    fig_risk.add_trace(go.Scatter(
+        x=filtered_df['Dynamics_YoY'] * 100, # Percent
+        y=filtered_df['Bankruptcy_Rate'],
+        mode='markers',
+        text=filtered_df['Industry_Name'],
+        customdata=np.stack((
+            filtered_df['Revenue'], 
+            filtered_df['Total_Debt'], 
+            filtered_df['Net_Profit'],
+            filtered_df['PKD_Code']
+        ), axis=-1),
+        marker=dict(
+            size=np.sqrt(filtered_df['Revenue']) / np.sqrt(filtered_df['Revenue'].max()) * 50 + 10,
+            color=filtered_df['Bankruptcy_Rate'], # Color by Risk itself? Or Leverage?
+            # Let's Color by Risk (Red=High Risk)
+            colorscale='RdYlGn_r', # Red-Yellow-Green REVERSED (High Risk = Red)
+            showscale=True,
+            colorbar=dict(title="Wskaźnik Upadłości (%)"),
+            line=dict(width=1, color='DarkSlateGrey')
+        ),
+        hovertemplate="<b>%{text}</b><br>" +
+                      "PKD: %{customdata[3]}<br>" +
+                      "Upadłości: %{y:.2f}%<br>" +
+                      "Dynamika: %{x:+.1f}%<br>" +
+                      "Przychody: %{customdata[0]:,.0f} mln<br>" +
+                      "Dług: %{customdata[1]:,.0f} mln<extra></extra>"
+    ))
+    
+    # Quadrants / Zones
+    # Critical Zone: Dynamics < 0 AND Bankruptcy > 1.0%
+    fig_risk.add_shape(type="rect",
+        x0=-100, y0=1.0, x1=0, y1=100,
+        line=dict(color="Red", width=1, dash="dash"),
+        fillcolor="rgba(255, 0, 0, 0.1)"
+    )
+    fig_risk.add_annotation(
+        x=-5, y=filtered_df['Bankruptcy_Rate'].max(),
+        text="STREFA KRYTYCZNA",
+        showarrow=False,
+        font=dict(color="red", size=14)
+    )
+    
+    fig_risk.update_layout(
+        xaxis_title="Dynamika Przychodów R/R (%)",
+        yaxis_title="Wskaźnik Upadłości (%)",
+        xaxis=dict(zeroline=True, zerolinecolor='white'),
+        yaxis=dict(zeroline=True, zerolinecolor='white'),
+        height=600,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="white")
+    )
+    
+    st.plotly_chart(fig_risk, use_container_width=True)
+    
+    # RED ZONE TABLE
+    st.markdown("### 🚨 Lista Ostrzeżeń (Red Zone)")
+    st.caption("Branże kurczące się (Dynamika < 0%) z wysokim ryzykiem upadłości (> 1%).")
+    
+    red_zone_df = filtered_df[
+        (filtered_df['Dynamics_YoY'] < 0) & 
+        (filtered_df['Bankruptcy_Rate'] > 1.0)
+    ].sort_values('Bankruptcy_Rate', ascending=False)
+    
+    if not red_zone_df.empty:
+        # Format for display
+        display_cols = ['PKD_Code', 'Industry_Name', 'Bankruptcy_Rate', 'Dynamics_YoY', 'Total_Debt', 'Revenue']
+        
+        # Stylized dataframe
+        st.dataframe(
+            red_zone_df[display_cols].style.format({
+                'Bankruptcy_Rate': "{:.2f}%",
+                'Dynamics_YoY': "{:+.2%}",
+                'Total_Debt': "{:,.0f}",
+                'Revenue': "{:,.0f}"
+            }).background_gradient(subset=['Bankruptcy_Rate'], cmap='Reds'),
+            use_container_width=True
+        )
+    else:
+        st.success("Brak branż w strefie krytycznej dla wybranych filtrów! 🎉")
+        
+    st.stop() # Ensure Main View doesn't run
+
 
 # --- CHART (LEFT) ---
 with col_main:
@@ -281,15 +463,20 @@ with col_details:
             m2.metric("Transformation", f"{selected_row['Transformation_Score']:.1f}", delta_color="normal")
             
             # Detailed Breakdown
-            with st.expander("📊 Szczegóły Wyliczeń"):
+            with st.expander("📊 Szczegóły Wyliczeń (Dynamiczne)"):
                 st.markdown(f"""
-                **Składowe Stability Score:**
-                - Rentowność: `{selected_row.get('Profitability', 0)*100:.2f}%`
-                - Dynamika R/R: `{selected_row.get('Dynamics_YoY', 0)*100:.2f}%`
+                **Twoje Wagi Stability Score:**
+                - Wzrost: {w_growth} dev
+                - Zyskowność: {w_profit} dev
+                - Bezpieczeństwo: {w_safety} dev
                 
-                **Inne:**
-                - Przychody: `{selected_row.get('Revenue', 0):,.2f}` mln PLN
-                - Upadłości: `{selected_row.get('Bankruptcy_Rate', 0):.2f}%`
+                **Składowe (Wartości Surowe):**
+                - Dynamika przychodów: `{selected_row.get('Dynamics_YoY', 0)*100:+.2f}%`
+                - Marża Netto: `{selected_row.get('Net_Profit_Margin', 0):.2f}%`
+                - Zyskowność (% firm): `{selected_row.get('Profitability', 0)*100:.1f}%`
+                - Płynność (Cash Ratio): `{selected_row.get('Cash_Ratio', 0):.2f}`
+                - Zadłużenie (Debt/Rev): `{selected_row.get('Debt_to_Revenue', 0):.2f}x`
+                - Ryzyko (Upadłości): `{selected_row.get('Bankruptcy_Rate', 0):.2f}%`
                 """)
             
             st.divider()
@@ -335,25 +522,25 @@ while current_selection_pkd and level_depth < max_depth:
     st.markdown(f"### 📉 Poziom {level_depth + 1}: `{current_row['Industry_Name']}`")
     
     # --- METRICS FOR CURRENT LEVEL ---
-    # Use pre-calculated values from the row (as source data is already aggregated)
+    # Use Metrics Calculated in Loader
     lev_rev = current_row['Revenue']
     lev_dyn = current_row['Dynamics_YoY']
-    lev_profit = current_row.get('Net_Profit', 0)
-    lev_debt = current_row.get('Total_Debt', 0)
-    lev_risk = current_row['Bankruptcy_Rate']
+    # Profit Margin
+    lev_margin = current_row.get('Net_Profit_Margin', 0)
+    # Debt Ratio
+    lev_debt_ratio = current_row.get('Debt_to_Revenue', 0)
+    # Cash Ratio
+    lev_cash_ratio = current_row.get('Cash_Ratio', 0)
+    # Risk
+    lev_risk_percent = current_row.get('Bankruptcy_Rate', 0)
     lev_bankrupt_count = current_row.get('Bankruptcy_Count', 0)
     
-    # Margin calculation if not present as col (Percent Profitability in col is share of profitable entities, NOT margin)
-    # Wait, 'Profitability' in df is "Share of Profitable Entities".
-    # User asked for "Marża (Zysk/Przychody)".
-    # I have Net_Profit now. So I can Calc Margin.
-    lev_margin = (lev_profit / lev_rev * 100) if lev_rev else 0
-    
-    m1, m2, m3, m4 = st.columns(4)
+    m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Wielkość", f"{lev_rev/1000:,.1f} mld PLN", f"{lev_dyn*100:+.1f}% r/r")
-    m2.metric("Marża Zysku", f"{lev_margin:.2f}%", f"Zysk: {lev_profit/1000:,.1f} mld")
-    m3.metric("Zadłużenie", f"{lev_debt/1000:,.1f} mld PLN")
-    m4.metric("Ryzyko (Upadłości)", f"{lev_risk:.2f}%", f"{lev_bankrupt_count:.0f} podmiotów", delta_color="inverse")
+    m2.metric("Rentowność (Marża)", f"{lev_margin:.1f}%", help="Zysk Netto / Przychody")
+    m3.metric("Zadłużenie", f"{lev_debt_ratio:.2f}x", help="Dług / Przychody")
+    m4.metric("Płynność", f"{lev_cash_ratio:.2f}", help="Gotówka / Zobowiązania Krótkie")
+    m5.metric("Ryzyko (Upadłości)", f"{lev_risk_percent:.2f}%", f"{lev_bankrupt_count:.0f} firm", delta_color="inverse")
     
     st.divider()
     
