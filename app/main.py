@@ -129,6 +129,29 @@ with st.sidebar:
     revenue_threshold = st.slider("Minimalne Przychody (mln PLN):", min_value=min_rev_val, max_value=max_rev_val, value=min_rev_val)
     filtered_df = filtered_df[filtered_df['Revenue'] >= revenue_threshold].copy()
     
+    st.sidebar.divider()
+    with st.sidebar.expander("ℹ️ Metodologia i Wzory"):
+        st.markdown("""
+        **1. Stability Score (Kondycja):**
+        *   **40%** Zyskowność (Marża Netto + % Rentownych)
+        *   **30%** Wzrost (Dynamika Przych. YoY)
+        *   **15%** Bezpieczeństwo Długu (Debt/Revenue)
+        *   **15%** Płynność (Cash Ratio)
+        
+        **2. Innovation Index (Transformacja):**
+        *   **50%** Inwestycje (Capex Intensity)
+        *   **50%** Nauka (Liczba Publikacji ArXiv AI)
+        
+        **3. Lending Opportunity (Bank):**
+        *   **40%** Popyt na kapitał (Capex)
+        *   **40%** Bezpieczeństwo (Stability)
+        *   **20%** Płynność (Liquidity)
+        
+        **4. Prognoza (Forecast):**
+        *   Model liniowy (Linear Regression) na danych 2019-2024.
+        *   Predykcja dla lat 2025-2026.
+        """)
+    
     # --- DYNAMIC STABILITY SCORE CALCULATION ---
     # We recalculate Stability Score based on:
     # 1. Growth: Dynamics_YoY (Higher is better)
@@ -251,17 +274,14 @@ col_main, col_details = st.columns([2, 1])
 if view_mode == "Analiza Ryzyka (Upadłości)":
     st.markdown("### 🛡️ Radar Ryzyka: Upadłość vs Dynamika")
     st.markdown("""
-    **Oś X: Stability Score (Stabilność - Dynamiczny)**
-    *Wynik obliczany w czasie rzeczywistym na podstawie Twoich wag (Pasek Boczny > Konfiguracja).*
-    Składa się z trzech filarów (znormalizowanych 0-100):
-    1.  **Wzrost:** Dynamika przychodów r/r.
-    2.  **Zyskowność:** Marża Netto oraz % Rentownych Firm.
-    3.  **Bezpieczeństwo:** Płynność (Cash Ratio) minus Zadłużenie (Debt Ratio) minus Ryzyko Upadłości.
-
-    **Oś Y: Transformation Score (Inwestycje + Innowacje)**
+    **Oś X: Stability Score (Kondycja Finansowa 2.0)**
+    *Mierzy bezpieczeństwo bankowe branży.*
+    Składowe: Zyskowność (40%) + Dynamika Wzrostu (30%) + Bezpieczeństwo Długu (15%) + Płynność (15%).
+    
+    **Oś Y: Transformation Index (Inwestycje + Innowacje)**
     *Mierzy potencjał przyszłościowy branży.*
-    Hybrydowa ocena: 50% Intensywność Inwestycyjna (Capex) + 50% Gotowość Naukowa (Publikacje AI z ArXiv).
-    Pokazuje, kto wydaje pieniądze (Inwestycje) i kto ma zaplecze badawcze (Science).
+    Hybrydowa ocena: 50% Intensywność Inwestycyjna (Capex) + 50% Innovation Index (ArXiv).
+    Pokazuje, kto wydaje pieniądze (Inwestycje) i kto ma zaplecze badawcze.
 
     **Wielkość Bąbelka:** Przychody ogółem branży.
     **Kolor:** Status (CRITICAL = Wysokie Ryzyko Upadłości).
@@ -494,10 +514,15 @@ with col_details:
                 - Zadłużenie (Debt/Rev): {color_val(selected_row.get('Debt_to_Revenue', 0), inverse=True)}x
                 - Ryzyko (Upadłości): {color_val(selected_row.get('Bankruptcy_Rate', 0), inverse=True, is_percent=False)}%
                 
-                **Transformacja (Inwestycje + Science):**
+                **Transformacja (Inwestycje + Innowacje):**
                 - Nakłady: **{selected_row.get('Investment', 0):,.1f} mln PLN**
                 - Intensywność (Capex/Rev): {color_val(selected_row.get('Capex_Intensity', 0), is_percent=False)}%
-                - Publikacje AI (ArXiv): **{int(selected_row.get('Arxiv_Papers', 0))}**
+                - Innovation Index (ArXiv): **{int(selected_row.get('Arxiv_Papers', 0))}**
+
+                ---
+                ### 🏦 Potencjał Kredytowy
+                **Lending Opportunity Score: {selected_row.get('Lending_Score', 0):.1f}/100**
+                *Miara atrakcyjności dla banku (Capex + Stability + Liquidity)*
                 """, unsafe_allow_html=True)
             
             st.divider()
@@ -514,6 +539,13 @@ with col_details:
                 </div>
                 <div class="verdict-box {'verdict-buy' if debate['Final_Verdict']=='BUY' else 'verdict-reject' if debate['Final_Verdict']=='REJECT' else 'verdict-hold'}">
                     WERDYKT: {debate['Final_Verdict']}
+                </div>
+                
+                <div style="margin-top: 10px; padding: 10px; border-radius: 5px; background-color: {'#2ecc71' if 'INCREASE' in debate.get('Credit_Recommendation', '') else '#ff4b4b' if 'DECREASE' in debate.get('Credit_Recommendation', '') else '#f1c40f'}; color: black; font-weight: bold; text-align: center;">
+                    🏦 BANK: {debate.get('Credit_Recommendation', 'N/A')}
+                </div>
+                <div style="text-align: center; font-style: italic; font-size: 0.9em; margin-top: 5px;">
+                    "{debate.get('Recommendation_Rationale', '')}"
                 </div>
                 """, unsafe_allow_html=True)
             else:
@@ -569,12 +601,56 @@ while current_selection_pkd and level_depth < max_depth:
     
     # 1. HISTORY CHART
     with col_hist:
-        st.caption(f"Historia: {current_selection_pkd}")
+        st.caption(f"Historia i Prognoza (2019-2026): {current_selection_pkd}")
+        
+        # Get full history including forecast
         hist_df = df_all[df_all['PKD_Code'] == current_selection_pkd].sort_values('Year')
+        
         if not hist_df.empty:
             fig_h = go.Figure()
-            fig_h.add_trace(go.Scatter(x=hist_df['Year'], y=hist_df['Revenue'], name='Przychody', line=dict(color='#3498db')))
-            fig_h.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
+            
+            # Split Data
+            is_forecast_col = 'Is_Forecast' in hist_df.columns
+            
+            if is_forecast_col:
+                real_df = hist_df[hist_df['Is_Forecast'] == False]
+                forecast_df = hist_df[hist_df['Is_Forecast'] == True]
+                
+                # Add last real point to forecast to bridge the gap
+                if not real_df.empty and not forecast_df.empty:
+                    last_real = real_df.iloc[[-1]]
+                    forecast_plot = pd.concat([last_real, forecast_df])
+                else:
+                    forecast_plot = forecast_df
+            else:
+                real_df = hist_df
+                forecast_plot = pd.DataFrame()
+                
+            # Plot Real
+            fig_h.add_trace(go.Scatter(
+                x=real_df['Year'], 
+                y=real_df['Revenue'], 
+                name='Przychody (Historia)', 
+                line=dict(color='#3498db', width=3)
+            ))
+            
+            # Plot Forecast
+            if not forecast_plot.empty:
+                fig_h.add_trace(go.Scatter(
+                    x=forecast_plot['Year'], 
+                    y=forecast_plot['Revenue'], 
+                    name='Prognoza (2025-26)', 
+                    line=dict(color='#f1c40f', width=3, dash='dot')
+                ))
+
+            fig_h.update_layout(
+                height=300, 
+                margin=dict(l=0,r=0,t=20,b=0), 
+                paper_bgcolor='rgba(0,0,0,0)', 
+                plot_bgcolor='rgba(0,0,0,0)', 
+                font=dict(color='white'),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
             st.plotly_chart(fig_h, use_container_width=True, key=f"hist_{level_depth}_{current_selection_pkd}")
             
     # 2. CHILDREN CHART

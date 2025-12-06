@@ -242,11 +242,26 @@ def load_and_process_real_data():
             if s.max() == s.min(): return pd.Series(0.5, index=s.index)
             return (s - s.min()) / (s.max() - s.min())
         
+        # Fundamentals
         group['Norm_Profit'] = norm(group['Profitability'])
         group['Norm_Dynamics'] = norm(group['Dynamics_YoY'])
+        group['Norm_Liquidity'] = norm(group['Cash_Ratio'])
         
-        # Stability (Static)
-        group['Stability_Score'] = ((0.6 * group['Norm_Profit']) + (0.4 * group['Norm_Dynamics'])) * 100
+        # Debt: Lower is better. 
+        # Calculate norm of debt, then invert.
+        # Handle outliers in debt? Naive min-max is risky if one co has 100x debt.
+        # But for relative ranking within year, it's okay-ish.
+        norm_debt_raw = norm(group['Debt_to_Revenue'])
+        group['Norm_Debt_Score'] = 1.0 - norm_debt_raw # 1 = No Debt, 0 = Max Debt
+        
+        # STABILITY SCORE (BANKING LOGIC)
+        # 40% Profit, 30% Growth, 15% Safety (Debt), 15% Liquidity
+        group['Stability_Score'] = (
+            (0.40 * group['Norm_Profit']) + 
+            (0.30 * group['Norm_Dynamics']) + 
+            (0.15 * group['Norm_Debt_Score']) + 
+            (0.15 * group['Norm_Liquidity'])
+        ) * 100
         
         # TRANSFORMATION SCORE (HYBRID: CAPEX + ARXIV)
         group['Norm_Capex'] = norm(group['Capex_Intensity'])
@@ -255,6 +270,15 @@ def load_and_process_real_data():
         # 50% Money (Capex), 50% Science (ArXiv)
         group['Transformation_Score'] = ((0.5 * group['Norm_Capex']) + (0.5 * group['Norm_Arxiv'])) * 100
         
+        # LENDING OPPORTUNITY SCORE
+        # "Ideal Borrower": Invests (Needs money) + Stable (Can pay back) + Liquid (Not desperate)
+        # Formula: 40% Capex + 40% Stability + 20% Liquidity
+        group['Lending_Score'] = (
+            (0.40 * group['Norm_Capex']) + 
+            (0.40 * (group['Stability_Score'] / 100)) + 
+            (0.20 * group['Norm_Liquidity'])
+        ) * 100
+
         return group
 
     df_processed = df_merged.groupby('Year').apply(calculate_scores).reset_index(drop=True)
@@ -273,6 +297,55 @@ def load_and_process_real_data():
         return 'Neutral'
 
     df_processed['Status'] = df_processed.apply(get_status, axis=1)
+    df_processed['Is_Forecast'] = False
+
+    # --- FORECASTING ENGINE (2025-2026) ---
+    print("Generating Revenue Forecasts for 2025-2026...")
+    forecast_rows = []
+    
+    # Get all unique industries
+    industries = df_processed[['PKD_Code', 'Industry_Name']].drop_duplicates()
+    
+    for _, ind_row in industries.iterrows():
+        pkd = ind_row['PKD_Code']
+        name = ind_row['Industry_Name']
+        
+        # Get history sorted
+        history = df_processed[df_processed['PKD_Code'] == pkd].sort_values('Year')
+        
+        # We need recent history with valid revenue
+        # Use 2019-2024 for trend
+        recent = history[(history['Year'] >= 2019) & (history['Revenue'] > 0)]
+        
+        if len(recent) >= 3: # Need at least 3 points for a trend
+            try:
+                # Linear Regression: y = mx + c
+                x = recent['Year'].values
+                y = recent['Revenue'].values
+                
+                # Fit degree 1 (linear)
+                slope, intercept = np.polyfit(x, y, 1)
+                
+                # Predict
+                for future_year in [2025, 2026]:
+                    pred_rev = (slope * future_year) + intercept
+                    if pred_rev < 0: pred_rev = 0
+                    
+                    forecast_rows.append({
+                        'Year': future_year,
+                        'PKD_Code': pkd,
+                        'Industry_Name': name,
+                        'Revenue': pred_rev,
+                        'Is_Forecast': True,
+                        'Status': 'Forecast'
+                    })
+            except Exception as e:
+                # Fallback or silent fail
+                continue
+                
+    if forecast_rows:
+        df_forecast = pd.DataFrame(forecast_rows)
+        df_processed = pd.concat([df_processed, df_forecast], ignore_index=True)
 
     # Save
     output_path = os.path.join(data_dir, 'processed_real_index.csv')

@@ -1,92 +1,128 @@
 {
   "SEK_A": {
-    "CRO_Opinion": "Sektor rolnictwa, leśnictwa, łowiectwa i rybactwa jest obecnie w krytycznym stanie. Przychody spadły o 2.53% w bieżącym roku, a wskaźnik upadłości utrzymuje się na wysokim poziomie 6.86%. Dodatkowo, marża zysku netto spadła do 8.22%, co wskazuje na pogorszenie rentowności. Biorąc pod uwagę obecną sytuację, sektor ten generuje zbyt duże ryzyko.",
-    "CSO_Opinion": "Pomimo trudnej sytuacji, sektor wykazuje pewien potencjał. Nakłady inwestycyjne (Capex) wynoszą 1,771.0 mln PLN, z intensywnością Capex na poziomie 3.69%. Liczba publikacji naukowych (ArXiv Papers) wynosi 663, co wskazuje na pewien poziom innowacyjności. Należy jednak pamiętać, że wskaźnik Transformation w S&T Score wynosi zaledwie 2.2.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na problemy płynności finansowej. Stosunek gotówki do aktywów obrotowych wynosi 0,97, co jest stosunkowo niskim poziomem. Dodatkowo, oprocentowanie zadłużenia wzrosło w ostatnich latach. Bankructwo spółek z tego sektora pozostaje wysokie i wynoszę obecnie 6,86%. Należy ścisle monitorować poziom zadłużenia i płynności.",
+    "CSO_Opinion": "Analiza szans na transformację wskazuje na potencjał wzrostu. Intensywność inwestycji (Capex) wynosi 3,69%, co jest stosunkowo wysokim poziomem w porównaniu do średniej branży. Liczba publikacji naukowych (ArXiv papers) wynosi 663, sugerując  czynny udział w badaniach i innowacjach. Potencjalnie możliwe jest wykorzystanie tych zasobów do uzyskania przewagi konkurencyjnej.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Ryzyko finansowe sektora jest wysokie, ale istnieją szanse na poprawę sytuacji poprzez inwestycje i innowacje. Wymagane jest dalsze monitorowanie kluczowych wskaźników."
   },
   "SEK_B": {
-    "CRO_Opinion": "Sytuacja sektora górniczego i wydobywczego budzi obawy. Spadek przychodów o 12.69% rok do roku oraz negatywna marża zysku netto na poziomie -9.52% stanowią istotne ryzyko. Wskaźnik płynności bieżącej (Cash Ratio) wynoszący zaledwie 0.31 sugeruje potencjalne problemy z bieżącą płynnością. Współczynnik zadłużenia do przychodów (Debt to Revenue) na poziomie 0.36x również wymaga ostrożności.",
-    "CSO_Opinion": "Pomimo obecnych trudności, sektor wykazuje potencjał transformacyjny. Wysokie nakłady inwestycyjne (Capex) na poziomie 11,832.1 MLN PLN, przekładające się na intensywność kapitałową (Capex Intensity) wynoszącą 12.84%, sygnalizują dążenie do modernizacji. Liczba publikacji naukowych (ArXiv Papers) wynosząca 3020 wskazuje na aktywność innowacyjną. Kluczowe jest monitorowanie skuteczności tych inwestycji w dłuższej perspektywie.",
-    "Final_Verdict": "HOLD"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na istotne obawy. Mimo że rentowność firmy wynosi 80,94%, zysk netto w bieżącym roku ulegnął spadkowi o 9,52%. Stosunek zadłużenia do przychodów wynosi 0,36x, co może być problematyczne w przypadku dalszego spadku przychodów.  Bankructwo w sektorze to nadal poważny problem – wskaźnik upadłości wynosi 0,72%, a w przeszłości przekroczył nawet 177%.",
+    "CSO_Opinion": "Sektor 'GÓRNICTWO I WYDOBYWANIE' posiada ogromny potencjał transformacyjny.  Intensywność inwestycji (Capex) wynosząca 12,84% i 3020 publikacji naukowych (ArXiv Papers) wskazują na zaangażowanie w innowacje. Chociaż przychody spadły o 12,69%, prognoza dla 2026 roku zyskuje na pozytywnych wyzwalaczach, ze wzrostem przychodów o 34,37%.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Chociaż ryzyka są realne i wymagają uważnego monitorowania, potencjał transformacyjny sektora i prognoza wzrostu przychodów do 2026 roku zachęcają do dalszej obserwacji.  Należy jednak ściśle śledzić wskaźniki płynności, zadłużenia i rentowności."
   },
   "SEK_C": {
-    "CRO_Opinion": "Sytuacja w 'PRZETWÓRSTWO PRZEMYSŁOWE' jest niepokojąca. Spadek przychodów o 5.61% w skali roku, niski wskaźnik płynności gotówkowej na poziomie 0.27 oraz wzrost wskaźnika bankructw do 1.88% stanowią poważne zagrożenie. Marża zysku netto spadła do 3.60%, a zadłużenie względem przychodów wynosi 0.30x. To sygnalizuje problemy z płynnością i rosnące ryzyko niewypłacalności.",
-    "CSO_Opinion": "Sektor wykazuje pewien potencjał transformacyjny, choć niewystarczający. Nakłady inwestycyjne (Capex) na poziomie 82,223.6 MLN PLN i intensywność Capex wynosząca 3.87% są obiecujące. Liczba publikacji naukowych w ArXiv (1186) wskazuje na aktywność innowacyjną, ale wynik S&T wskazuje na słabą transformację (3.0) i niewielką stabilność (45.8), co sugeruje, że innowacje nie przekładają się na realne wyniki.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wykazuje istotne obawy. Stosunek zadłużenia do przychodów wynosi 0,30x, co wskazuje na relatywnie wysoką zależność od finansowania zewnętrznego.  Wraz ze spadkiem przychodów o 5,61% w bieżącym roku i utrzymującym się wysokim wskaźnikiem upadłości na poziomie 187,87%, ryzyko kredytowe branży 'PRZETWÓRSTWO PRZEMYSŁOWE' jest poważne.",
+    "CSO_Opinion": "Branża 'PRZETWÓRSTWO PRZEMYSŁOWE' posiada potencjał transformacji. Chociaż przychody spadły, wskaźnik inwestycji CAPEX wynosi 3,87%, a liczba publikacji naukowych na platformie ArXiv wynosi 1186, co sugeruje innowacyjność i dążenie do modernizacji. Zmiany te mogą prowadzić do wzrostu konkurencyjności w przyszłości.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Ryzyko kredytowe branży jest wysokie ze względu na niski wskaźnik rentowności i wysoką stopę upadłości.  Natomiast potencjał transformacji, widoczny w inwestycjach CAPEX i publikacjach naukowych, może pozytywnie wpłynąć na sytuację finansową w dłuższej perspektywie. Dlatego zaleca się monitoring sytuacji."
   },
   "SEK_D": {
-    "CRO_Opinion": "Sytuacja jest krytyczna. Spadek przychodów o 20,74% w skali roku w połączeniu z niskim wskaźnikiem płynności gotówkowej na poziomie 0,22 budzi poważne obawy o stabilność finansową. Dodatkowo, wskaźnik zadłużenia do przychodów wynoszący 0,46x oraz gwałtowny wzrost wskaźnika bankructw do 2,20% zmuszają nas do zachowania maksymalnej ostrożności. Marża zysku netto na poziomie 2,49% jest niepokojąco niska.",
-    "CSO_Opinion": "Sektor wykazuje znaczące nakłady inwestycyjne (Capex) na poziomie 26,303.0 mln PLN, co przekłada się na intensywność inwestycyjną (Capex intensity) wynoszącą 5,68%. Liczba publikacji naukowych na platformie ArXiv (379) wskazuje na pewien potencjał innowacyjny. Niestety, obecny wynik S&T Score (Stabilność=47.8, Transformacja=2.4) sugeruje, że transformacja postępuje bardzo powoli w porównaniu do stabilności.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy. Pomimo wyników zysków w 2024 roku, spadek przychodów o 20,74% i utrzymująca się marża zysku netto na poziomie 2,49% są alarmistyczne.  Wartość stosunku zadłużenia do przychodów (0,46x) jest akceptowalna, jednak niski wskaźnik płynności (0,22) i rosnąca stopa upadłości (2,20%) wymagają pilnej uwagi.",
+    "CSO_Opinion": "Pomimo negatywnego wyniku finansowego w 2024 roku, firma posiada potencjał transformacyjny.  Wysoki wskaźnik inwestycji (5,68%) i liczba publikacji naukowych w systemie ArXiv (379) sugerują zaangażowanie w innowacje.  Należy jednak poprawić stabilność firmy, aby zrealizować przewidywany wzrost przychodów o 51,18% do roku 2026.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Zastosowanie strategii stabilizacji finansowej jest konieczne. Należy skupić się na poprawie płynności i zminimalizowaniu ryzyka upadłości."
   },
   "SEK_E": {
-    "CRO_Opinion": "Zwracam uwagę na wskaźnik płynności bieżącej (Cash Ratio) wynoszący zaledwie 0,66. Dług względem przychodów na poziomie 0,39x w połączeniu z rentownością na poziomie 6,08% rodzi obawy. Choć wskaźnik upadłości spadł do 0,50%, w przeszłości oscylował w wyższych granicach, co nakazuje ostrożność.",
-    "CSO_Opinion": "Branża wykazuje potencjał wzrostu, o czym świadczy wzrost przychodów o 12,47% w bieżącym roku. Inwestycje (Capex) na poziomie 6,691.7 mln PLN i intensywność inwestycji (Capex Intensity) wynosząca 9,90% wskazują na modernizację i rozwój. Liczba publikacji naukowych (ArXiv Papers) wynosząca 81 sugeruje innowacyjność branży.",
-    "Final_Verdict": "HOLD"
+    "CRO_Opinion": "Analiza ryzyka w sektorze 'Dostawa wody, gospodarka ściekami i odpadami oraz działalność związana z rekultywacją' wskazuje na potencjalne zagrożenia. Mimo rosnących przychodów o 12,47% w bieżącym roku, stosunek zadłużenia do przychodów wynosi 0,39x, co może stanowić problem w przypadku pogorszenia warunków rynkowych. Stopa bankructwa w sektorze na poziomie 0,50% również wymaga ścisłego monitorowania.",
+    "CSO_Opinion": "Analiza szans sektora 'Dostawa wody, gospodarka ściekami i odpadami oraz działalność związana z rekultywacją' wskazuje na potencjał transformacji. Wysoka intensywność inwestycji (9,90%) oraz wysoki wynik w rankingu ArXiv Papers (81.0) sugerują dążenie do innowacji i modernizacji.  Wzrost przychodów o 12,47% w bieżącym roku potwierdza pozycję sektora na rynku.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Chociaż sektor charakteryzuje się dobrym wzrostem przychodów i wysoki procentowy udział firm rentownych, wskaźniki ryzyka takie jak stosunek zadłużenia do przychodów i stopa bankructwa wymagają uważnego monitorowania. Zwiększenie ekspozycji na ten sektor jest premature."
   },
   "SEK_F": {
-    "CRO_Opinion": "Sytuacja w budownictwie jest niepokojąca. Spadek przychodów o prawie 2% w tym roku, przy wskaźniku płynności gotówkowej na poziomie zaledwie 0.52, budzi poważne obawy o stabilność finansową firm. Dodatkowo, wskaźnik upadłości wynoszący 4.88% to sygnał alarmowy, który wymaga natychmiastowej analizy. Utrzymujący się poziom zadłużenia do przychodów, wynoszący 0.37x, generuje presję na generowanie przyszłych zysków.",
-    "CSO_Opinion": "Sektor budowlany, pomimo obecnych wyzwań, wykazuje pewien potencjał transformacji. Inwestycje (Capex) na poziomie 9,214.9 mln PLN oraz wskaźnik Capex Intensity wynoszący 3.52% sugerują podejmowanie prób modernizacji. Ponadto, imponująca liczba publikacji naukowych (ArXiv Papers: 13319) świadczy o aktywności w obszarze innowacji. Konieczne jest jednak przełożenie tych inwestycji i badań na realny wzrost i poprawę efektywności.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na krytyczny stan sektora BUDOWNICTWO. Pomimo 6,10% zysku netto w bieżącym roku, stopa upadłości wynosi 4,88%, co stanowi poważne zagrożenie. Stosunek zadłużenia do przychodów na poziomie 0,37x jest dopuszczalny, ale niski wskaźnik płynności (cash ratio = 0,52) budzi niepokój w kontekście potencjalnych problemów z spłata zobowiązań.",
+    "CSO_Opinion": "Sektor BUDOWNICTWO posiada duży potencjał transformacji. Wysoki wskaźnik innowacyjności (13 319 publikacji ArXiv) i inwestycje w kapitał trwały (Capex Intensity = 3,52%) świadczą o zaangażowaniu przedsiębiorstw w rozwój nowych rozwiązań i technologii. Przewidywany wzrost przychodów o 20,37% do 2026 roku, na podstawie modelu liniowego, jest obiecujący, choć należy monitorować stabilność finansową podmiotów.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Ryzyko w sektorze BUDOWNICTWO jest wysokie, co wynika z wysokich wskaźników upadłości i niskiego cash ratio. Z drugiej strony potencjał transformacji i przewidywany wzrost przychodów sugerują możliwość rentownego inwestowania w tym sektorze.  Zalecam ścisłe monitorowanie sytuacji finansowej podmiotów działających w branży BUDOWNICTWO oraz analizę strategii zarządzania ryzykiem."
   },
   "SEK_G": {
-    "CRO_Opinion": "Sytuacja w sektorze jest krytyczna. Spadek rentowności do 2.67% oraz wysoki wskaźnik upadłości na poziomie 2.78% budzą poważne obawy. Wskaźnik płynności gotówkowej (cash ratio) wynoszący zaledwie 0.21 wskazuje na możliwe problemy z krótkoterminową wypłacalnością. Stosunek zadłużenia do przychodów (debt to revenue) na poziomie 0.22x również wymaga monitoringu.",
-    "CSO_Opinion": "Mimo trudnej sytuacji, inwestycje (Capex) na poziomie 26,997.9 mln PLN przy intensywności 1.37% sugerują pewne próby modernizacji. Liczba publikacji naukowych (ArXiv Papers) – 256 – wskazuje na potencjał innowacyjny, choć niewystarczający, by odwrócić negatywny trend. Niski wskaźnik Transformation (0.8) w S&T Score potwierdza opór branży przed głębokimi zmianami.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na niepokojące tendencje. Stosunek zadłużenia do przychodów wynosi 0,22x, co jest stosunkowo niskim poziomem, ale biorąc pod uwagę wysoką stopy bankructwa wynoszące 2.78%, konieczne jest ścisłe monitorowanie sytuacji finansowej firm działających w tym sektorze.",
+    "CSO_Opinion": "Sektor posiada potencjał do transformacji.  Intensywność inwestycji (Capex) na poziomie 1,37% i wysoki wskaźnik publikacji naukowych w systemie ArXiv (256.0) sugerują zaangażowanie w innowacje. Należy jednak analizować stopień przekładania tych nakładów na wzrost rentowności.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Ryzyka związane z wysoką stopą bankructwa i koniecznością monitorowania płynności finansowej firmy nie uzasadniają zwiększenia ekspozycji.  Jednak potencjał transformacji, wskazywany przez innowacje i inwestycje, warantuje dalsze śledzenie sytuacji."
   },
   "SEK_H": {
-    "CRO_Opinion": "Sytuacja w sektorze 'Transport i Gospodarka Magazynowa' jest alarmująca. Wskaźnik upadłości wzrósł do 5.12%, a marże spadły do 2.77%. Współczynnik płynności środków pieniężnych na poziomie 0.64 budzi obawy o zdolność firm do regulowania zobowiązań krótkoterminowych. Należy unikać dalszego zwiększania ekspozycji na ten sektor.",
-    "CSO_Opinion": "Pomimo obecnych trudności, sektor wykazuje potencjał transformacji. Inwestycje na poziomie 27,850.3 mln PLN, przy wskaźniku intensywności inwestycji (Capex intensity) na poziomie 9.03%, sygnalizują gotowość firm do innowacji. Wysoka liczba publikacji naukowych (ArXiv Papers: 2404) świadczy o aktywnym poszukiwaniu nowych rozwiązań, co długoterminowo może przynieść korzyści.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy. Stosunek zadłużenia do przychodów wynosi 0,47x, co jest nieduże w skali ogólnej, jednak biorąc pod uwagę stale rosnącą stopy bankructwa - obecnie na poziomie 5,12%, należy uznać to za sygnał ostrzegawczy.  Niski wskaźnik płynności (0,64) również nasuwa wątpliwości co do zdolności firmy do spłaty zobowiązań.",
+    "CSO_Opinion": "Sektor 'Transport i Gospodarka Magazynowa' charakteryzuje się dużym potencjałem transformacyjnym. Wysoka liczba publikacji w dziedzinie nauk ścisłych (2404) oraz wysoki wskaźnik inwestycji kapitałowej (9,03%) sugerują, że firmy w tym sektorze intensywnie inwestować będą w nową technologię i innowacje.  Pomimo negatywnych danych finansowych z ostatnich lat, potencjał transformacji może okazać się kluczowym czynnikiem sukcesu.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Chociaż sektor 'Transport i Gospodarka Magazynowa' dysponuje znaczącym potencjałem transformacyjnym, obecna sytuacja finansowa z silnie rosnącą stopą bankructwa i niskim wskaźnikiem płynności wymaga uważnego monitorowania. Rekomendujemy utrzymanie obecnego poziomu ekspozycji."
   },
   "SEK_I": {
-    "CRO_Opinion": "Sytuacja w sektorze 'DZIAŁALNOŚĆ ZWIĄZANA Z ZAKWATEROWANIEM I USŁUGAMI GASTRONOMICZNYMI' budzi poważne obawy. Wskaźnik upadłości na poziomie 7.27% jest alarmujący, a bieżący wskaźnik płynności (Cash Ratio) wynoszący zaledwie 0.70 wskazuje na potencjalne problemy z regulowaniem zobowiązań krótkoterminowych. Dodatkowo, marża zysku netto spadła do 8.07%, co w połączeniu z wskaźnikiem zadłużenia do przychodów na poziomie 0.40x generuje wysokie ryzyko finansowe.",
-    "CSO_Opinion": "Pomimo wyzwań, sektor wykazuje pewien potencjał transformacyjny. Nakłady inwestycyjne (Capex) na poziomie 2,146.3 mln PLN, przy intensywności Capex wynoszącej 5.33%, sugerują inwestycje w rozwój. Dodatkowo, liczba publikacji naukowych (ArXiv Papers) na poziomie 842 wskazuje na aktywność innowacyjną. Należy jednak pamiętać, że wynik S&T wskazuje na przewagę stabilności nad transformacją (44.1 vs 3.0).",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na krytyczną sytuację. Stosunek zadłużenia do przychodów wynosi 0,40x, co jest alarmujące w kontekście wysokiego wskaźnika upadłości na poziomie 7,27%.  Niski poziom płynności (Cash Ratio = 0,70) pogarsza sytuację i wymaga natychmiastowej reakcji.",
+    "CSO_Opinion": "Dziesięcioprocentowy wzrost przychodów w mijającym roku jest obiecujący. Wysoki wskaźnik inwestycji w badania i rozwój (842 opublikowanych artykułów na platformie ArXiv) oraz intensywność CAPEX na poziomie 5,33% sugerują potencjał transformacyjny. To kluczowe czynniki do dalszego rozwoju w przyszłości.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Pomimo pozytywnych wskaźników zysków i wzrostu przychodów, wysoki poziom zadłużenia i ryzyko upadłości są poważnym problemem. Obserwacja sytuacji finansowej i analiza potencjalnych rozwiązań jest niezbędna."
   },
   "SEK_J": {
-    "CRO_Opinion": "Sytuacja w sektorze 'Informacja i Komunikacja' jest niepokojąca. Wskaźnik upadłości na poziomie 3.17% oraz zadłużenie do przychodów wynoszące 0.54x budzą obawy. Mimo wzrostu przychodów, wskaźnik płynności bieżącej (Cash Ratio) na poziomie 0.49 wskazuje na potencjalne problemy z krótkoterminową wypłacalnością. Margines zysku netto na poziomie 7.32% również nie rekompensuje ryzyka.",
-    "CSO_Opinion": "Sektor wykazuje znaczny potencjał transformacyjny. Intensywność inwestycji (Capex Intensity) na poziomie 4.17% oraz liczba publikacji naukowych (ArXiv Papers) wynosząca 7455 świadczą o znacznym zaangażowaniu w innowacje. Obserwujemy wzrost przychodów o 8.75% rok do roku, co potwierdza dynamiczny rozwój branży. Inwestycje w badania i rozwój mogą przynieść wysokie zwroty w przyszłości.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy.  Stosunek zadłużenia do przychodu wynosi 0,54x, co stanowi pewne obciążenie dla firmy.  Wskaźnik upadłości wynoszący 3,17% również jest niepokojący i wymaga uważnego monitorowania. Choć rentowność firmy pozostaje na stabilnym poziomie (7,32%), wysoki wskaźnik zadłużenia może stanowić zagrożenie w przypadku negatywnych zmian rynkowych.",
+    "CSO_Opinion": "Sektor 'Informacji i Komunikacji' wciąż posiada ogromny potencjał. Wysoka liczba publikacji na platformie ArXiv (7455) świadczy o intensywnym rozwoju naukowo-technologicznym w branży.  Intensywność inwestycji (Capex) wynosząca 4,17% potwierdza zaangażowanie firmy w innowacje i rozwój nowych rozwiązań.  Rozwój technologiczny otwiera nowe możliwości rynkowe i może przyczynić się do wzrostu przychodów w perspektywie długoterminowej.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Chociaż sektor 'Informacji i Komunikacji' ma potencjał wzrostu, wysoki wskaźnik upadłości i stosunek zadłużenia do przychodu wymagają uważnego monitorowania ryzyka.  Wskazówki rozwojowe dotyczące inwestycji i innowacji są obiecujące, jednak wymagają czasu na przekształcenie w realny zysk."
   },
   "SEK_K": {
-    "CRO_Opinion": "Uważam, że sytuacja w sektorze jest ryzykowna. Wskaźnik zadłużenia do przychodów na poziomie 2.59x jest niepokojący, a wskaźnik płynności bieżącej wynosi zaledwie 0.31. Dodatkowo, stopa bankructw na poziomie 5.71% sygnalizuje potencjalne problemy dla wielu podmiotów w branży. Pomimo wzrostu rentowności do 80.6%, te czynniki stanowią poważne zagrożenie.",
-    "CSO_Opinion": "Widzę duży potencjał transformacyjny w sektorze, poparty znaczącymi inwestycjami. Nakłady inwestycyjne (Capex) wynoszą 7,520.6 mln PLN, co przekłada się na intensywność inwestycji na poziomie 7.08%. Liczba publikacji naukowych na ArXiv (2619) sugeruje wysoki poziom innowacyjności. To stwarza szanse na długoterminowy wzrost i konkurencyjność.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne zagrożenia. Pomimo 18,67% wzrostu przychodów w bieżącym roku i zyskowności 80,60%, stosunek zadłużenia do przychodów wynosi 2,59x, co jest alarmujące. Stawka upadłości na poziomie 5,71% również wymaga ścisłego monitoringu.",
+    "CSO_Opinion": "Analiza szans skupia się na potencjale transformacji. Wysoka intensywność inwestycji wynosząca 7,08% oraz liczbę 2619 publikacji na platformie ArXiv świadczą o zaangażowaniu w innowacje i rozwój. Mimo niskiej oceny Transformacji (6.2) z modelu S&T, prognoza wzrostu przychodów o 17,61% do 2026 roku wskazuje na pozytywne perspektywy.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Pomimo wyników finansowych, które pokazują wzrost przychodów i zyskowności, wysoki poziom zadłużenia i stawka upadłości wymagają uważnego monitorowania. Inwestycje w innowacje dają nadzieję na przyszły rozwój, jednak nie są one wystarczające, aby uzasadnić zakup akcji."
   },
   "SEK_L": {
-    "CRO_Opinion": "Sytuacja w sektorze jest krytyczna. Wskaźnik zadłużenia do przychodów wynosi 0.92x, co budzi obawy. Co prawda rentowność utrzymuje się na poziomie 5.19%, ale współczynnik płynności gotówkowej to zaledwie 0.73, a stopa bankructw wynosi 2.83%. Uważam, że ryzyko jest zbyt wysokie.",
-    "CSO_Opinion": "Sektor wykazuje potencjał transformacji. Inwestycje (Capex) wynoszą 6,134.6 mln PLN, a intensywność inwestycji (Capex intensity) to 9.36%. Liczba publikacji naukowych (ArXiv Papers) wzrosła do 38. To sugeruje, że firmy poszukują innowacyjnych rozwiązań, jednak wskaźnik S&T Transformation to zaledwie 3.1, co wskazuje na spore braki.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka w branży nieruchomości wskazuje na poważne obawy. Stosunek zadłużenia do przychodów wynosi 0,92x, co jest znaczącym wskaźnikiem. Bankructwo jest widoczne w wysokim wskaźniku upadłości – aż 2,83%. W przypadku dalszego wzrostu stóp procentowych i spadku popytu na nieruchomości, ryzyko utrat będzie rosło.",
+    "CSO_Opinion": "Analiza szans branży nieruchomości wykazuje potencjał w obszarze transformacji. Intensywność inwestycji (Capex) wynosi 9,36%, co wskazuje na chęć inwestowania w rozwój. Liczba publikacji naukowych (ArXiv papers) osiągnęła poziom 38,0, sugerując zaangażowanie w innowacje.  Należy jednak pamiętać o stabilności branży – wskaźnik Stabilność w S&T Score wynosi zaledwie 49,8.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Obecny stan rynku nieruchomości jest niejednoznaczny. Z jednej strony widoczne są obawy związane z ryzykiem finansowym i wysokim wskaźnikiem bankructwa, z drugiej – potencjał transformacji poprzez inwestycje i innowacje. Zalecamy dalsze monitorowanie sytuacji i analizę danych."
   },
   "SEK_M": {
-    "CRO_Opinion": "Sytuacja jest krytyczna. Wskaźnik zadłużenia do przychodów wynosi 0.83x, a wskaźnik płynności gotówkowej to zaledwie 0.34. Co niepokojące, wskaźnik upadłości wynosi aż 4.26%. Spadek rentowności do 79.74% w połączeniu z niską płynnością stanowi poważne zagrożenie.",
-    "CSO_Opinion": "Mimo niepokojącej sytuacji finansowej, zauważalny jest wzrost nakładów inwestycyjnych (Capex) do 3,072.9 mln PLN, co przekłada się na intensywność Capex na poziomie 1.90%. Ponadto, liczba publikacji naukowych (ArXiv Papers) wynosi 336, co wskazuje na pewien potencjał innowacyjny. Transformacja branży jest jednak znikoma (1.1).",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy. Stosunek zadłużenia do przychodów wynosi 0,83x, a stopa upadłości w sektorze wynosi 4,26%. Należy pamiętać o utrzymującym się trendzie wzrostu stopy upadłości w ostatnich latach, który osiągnął poziom 426,18% w 2024 roku.  Zasięg gotówkowy (cash ratio) na poziomie 0,34 wskazuje na ograniczone możliwości finansowe do poradzenia sobie z potencjalnymi wyzwaniami. ",
+    "CSO_Opinion": "Sektor posiada duży potencjał transformacji. Intensywność inwestycji (Capex intensity) wynosząca 1,90% oraz liczbę publikacji naukowych w ArXiv (336.0) wskazują na zaangażowanie w innowacje i rozwój technologiczny.  Należy jednak pamiętać o niskiej ocenie transformacji (1.1), która sugeruje konieczność usprawnienia procesów i zwiększenia efektywności inwestycji.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Chociaż sektor wykazuje pozytywny wzrost przychodów (11,38%) i rentowność (7,39%), poważne obawy związane z ryzykiem płynności i zadłużeniem przeważają nad perspektywami transformacji. Monitorowanie sytuacji finansowej i podejmowania działań naprawczych w celu zmniejszenia poziomu zadłużenia jest kluczowe."
   },
   "SEK_N": {
-    "CRO_Opinion": "Sytuacja jest krytyczna. Wskaźnik płynności gotówkowej na poziomie 0.20 jest alarmująco niski. Współczynnik zadłużenia do przychodów wynoszący 0.65x oraz dramatycznie wysoki wskaźnik upadłości na poziomie 6.36% stwarzają poważne ryzyko niewypłacalności. Obserwujemy także spadek rentowności, z 82.3% w zeszłym roku do 81.3% w bieżącym.",
-    "CSO_Opinion": "Sektor ten, pomimo trudności, wykazuje potencjał transformacji. Inwestycje (Capex) wynoszą imponujące 22,002.5 mln PLN, co przekłada się na intensywność kapitałową na poziomie 17.26%. Liczba publikacji naukowych na ArXiv (429) sugeruje aktywność innowacyjną. Należy jednak zwrócić szczególną uwagę na różnicę pomiędzy wskaźnikiem Stabilności (48.8) i Transformacji (6.3).",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na zaniepokojące trendy.  Stosunek zadłużenia do przychodów wynosi 0,65x, co jest znaczne biorąc pod uwagę niski poziom płynności - stosunek gotówki wynosi tylko 0,20. Oprócz tego, wskaźnik upadłości na poziomie 6,36% świadczy o zwiększonym ryzyku bankructwa w sektorze.",
+    "CSO_Opinion": "Sektor oferuje potencjał transformacji.  Wysoki poziom inwestycji (intensywność CAPEX na poziomie 17,26%) wskazuje na chęć rozwoju. Ponadto, wysoka liczba publikacji naukowych na platformie ArXiv (429) świadczy o zaangażowaniu w innowacje.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Pomimo wyraźnego wzrostu przychodów, wysoki wskaźnik upadłości i niski poziom płynności wymagają uważnego monitorowania.  Potencjał transformacji w sektorze jest realny, jednak niezbędne są dalsze analizy, aby ocenić rentowność inwestycji."
   },
   "SEK_P": {
-    "CRO_Opinion": "Sytuacja w sektorze 'EDUKACJA' jest krytyczna, co podkreśla wskaźnik upadłości na poziomie 4.70%. Pomimo wzrostu przychodów, margines zysku netto na poziomie 6.19% pozostaje niski. Utrzymanie płynności przy wskaźniku Cash Ratio na poziomie 1.10 może być problematyczne, zwłaszcza biorąc pod uwagę zadłużenie do przychodów (Debt to Revenue) na poziomie 0.18x.",
-    "CSO_Opinion": "Sektor 'EDUKACJA' wykazuje potencjał transformacyjny, choć wciąż niewystarczający. Nakłady inwestycyjne (Capex) w wysokości 102.6 mln PLN, przekładające się na intensywność Capex na poziomie 1.88%, wymagają zwiększenia. Liczba publikacji naukowych (ArXiv Papers) wynosząca 3434 wskazuje na innowacyjność, lecz stabilność sektora (S&T Score: 46.4) musi być wzmocniona.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka w sektorze EDUKACJA wskazuje na poważne zaniepokojenie. Pomimo rosnących przychodów (5,462 MLN PLN w 2024 r.) i względnie wysokiego rentowności netto (6,19%), stopa bankructwa wynosząca 4,70% jest alarmująco wysoka. Dodatkowo, choć stosunek zadłużenia do przychodów wynosi jedynie 0,18x,  należy śledzić płynność firmy, ponieważ stosunek gotówki do aktywów krótko terminowych to zaledwie 1,10.",
+    "CSO_Opinion": "Sektor EDUKACJA cechuje się wysokim potencjałem transformacyjnym. Znaczący wzrost inwestycji w badania i rozwój (Capex Intensity: 1,88%) oraz wysoki poziom aktywności naukowej (3434.0 ArXiv Papers) wskazują na zaangażowanie firmy w innowacje.  Należy jednak pamiętać o niskim wyniku transformacji w S&T Score (5,8). Wymaga to strategii przyspieszenia zmian.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Pomimo wzrostu przychodów i rentowności, wysoka stopa bankructwa i zróżnicowany potencjał transformacyjny wymagają uważnego monitorowania sytuacji."
   },
   "SEK_Q": {
-    "CRO_Opinion": "Sytuacja jest poważna. Wskaźnik płynności bieżącej (Cash Ratio) na poziomie 0.53 budzi niepokój. Dług do przychodów na poziomie 0.29x oraz wskaźnik upadłości wynoszący 1.91% również wymagają szczególnej uwagi. Marża zysku netto spadła do 4.67%, co sygnalizuje potencjalne problemy z rentownością w przyszłości.",
-    "CSO_Opinion": "Branża opieki zdrowotnej i pomocy społecznej wykazuje dynamiczny wzrost, z rocznym wzrostem przychodów na poziomie 17.44%. Inwestycje (Capex) wynoszą 3,164.7 mln PLN, co przekłada się na intensywność inwestycyjną (Capex Intensity) na poziomie 4.48%. Liczba publikacji naukowych na ArXiv (3709) świadczy o potencjale innowacyjnym branży, choć stabilność stoi pod znakiem zapytania (S&T Score: Stability=49.5, Transformation=7.0).",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy. Pomimo rosnących przychodów o 17,44% w roku bieżącym i rentowności na poziomie 4,67%, stosunek zadłużenia do przychodów wynosi 0,29x, co może stanowić problem w przypadku pogorszenia się warunków rynkowych. Zwraca uwagę również wysoki wskaźnik upadłości wynoszący 1,91%.  Niski poziom płynności (stosunek gotówki do aktywów = 0,53) dodatkowo wzmaga ryzyko.",
+    "CSO_Opinion": "Sektor opieki zdrowotnej i pomocy społecznej oferuje znaczny potencjał transformacyjny. Inwestycje w wysokości 3,164,7 mln PLN (co stanowi 4,48% przychodów) oraz wysoki poziom innowacyjności (3709.0 publikacji w ArXiv) potwierdzają zaangażowanie w rozwój nowoczesnych rozwiązań.  Mimo niskiego wskaźnika transformacji na poziomie 7.0, widzę szansę na poprawę sytuacji poprzez wykorzystanie potencjału naukowo-technicznego.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Pomimo pozytywnych wskaźników wzrostu przychodów i rentowności, ryzyka związane z zadłużeniem i płynnością wymagają uważnego monitorowania. Potencjał transformacyjny sektora pozostaje ważnym czynnikiem do rozważenia."
   },
   "SEK_R": {
-    "CRO_Opinion": "Sytuacja sektora jest niepokojąca. Marża zysku netto wynosi zaledwie 1,18%, a wskaźnik płynności gotówkowej to tylko 0,59. Co gorsza, wskaźnik upadłości poszybował do alarmującego poziomu 10,28%. Przy obecnym poziomie zadłużenia w stosunku do przychodów (0,10x), dalsze angażowanie się w ten sektor wiąże się z nadmiernym ryzykiem finansowym.",
-    "CSO_Opinion": "Sektor wykazuje dynamikę, czego dowodem jest wzrost przychodów o 22,88% rok do roku, osiągając 96,83 mld PLN. Inwestycje, choć o relatywnie niskiej intensywności (Capex Intensity: 0,89%), wspierane są przez znaczący postęp naukowy, o czym świadczy liczba publikacji na ArXiv (33379). Indeksy S&T Stability i Transformation wskazują na potencjał transformacji wyższy niż stabilność, co sygnalizuje możliwość generowania przewagi konkurencyjnej.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy.  Mimo rosnących przychodów, rentowność pozostaje niski, wynosząc jedynie 1,18% w bieżącym roku.  Niewystarczająca płynność finansowa (Cash Ratio = 0,59) i wysoka stopa bankructwa branży (10,28%) stanowią poważne zagrożenie. Należy mieć na uwadze również stosunkowo wysoki poziom zadłużenia - wskaźnik Debt to Revenue wynosi 0,10x.",
+    "CSO_Opinion": "Branża 'Działalność związana z kulturą, rozrywką i rekreacją' posiada duży potencjał transformacyjny.  Wzrost inwestycji (Capex Intensity = 0,89%) i wysoki poziom innowacyjności (33 379.0 ArXiv papers) sugerują, że firmy działające w tym sektorze szukają nowych rozwiązań i modeli biznesowych.  Należy jednak monitorować trend wzrostu przychodów i rentowności w najbliższych latach.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Chociaż branża ma potencjał, ryzyko jest obecnie zbyt wysokie. Należy uważnie monitorować sytuację finansową firm i trend wzrostu rentowności przed rozważeniem zwiększenia ekspozycji."
   },
   "SEK_S": {
-    "CRO_Opinion": "Sytuacja w 'POZOSTAŁEJ DZIAŁALNOŚCI USŁUGOWEJ' jest niepokojąca. Wskaźnik upadłości na poziomie 14.68% jest alarmujący. Cash Ratio wynoszący zaledwie 0.58 wskazuje na problemy z płynnością bieżącą. Utrzymujący się wskaźnik zadłużenia do przychodów na poziomie 0.24x, w połączeniu z wysokim ryzykiem upadłości, budzi poważne obawy o stabilność finansową.",
-    "CSO_Opinion": "Sektor 'POZOSTAŁEJ DZIAŁALNOŚCI USŁUGOWEJ' wykazuje pewien potencjał transformacyjny. Nakłady inwestycyjne (Capex) na poziomie 302.5 mln PLN, przy intensywności Capex wynoszącej 4.20%, sugerują próby modernizacji. Liczba publikacji naukowych (ArXiv Papers) wynosząca 532 świadczy o pewnym poziomie innowacyjności, choć niewystarczającym do zniwelowania ryzyka stagnacji.",
-    "Final_Verdict": "REJECT"
+    "CRO_Opinion": "Analiza ryzyka wskazuje na poważne obawy. Pomimo względnie dobrej marży zysku 6,85% w bieżącym roku, stosunek zadłużenia do przychodów wynosi 0,24x, co może stać się problemem w przypadku pogorszenia się sytuacji rynkowej.  Wysoki wskaźnik upadłości na poziomie 14,68% dodatkowo potęguje obawy. Należy śledzić te parametry uważnie i rozważyć ograniczenie ekspozycji.",
+    "CSO_Opinion": "Sektor 'Pozostała działalność usługowa' posiada potencjał transformacji.  Obserwujemy stały wzrost przychodów, a wskaźnik inwestycji (Capex) wynosi 4,20%. Ponadto wysoki wskaźnik publikacji naukowych w bazie ArXiv (532.0) świadczy o zaangażowaniu w innowacje i rozwój. Należy kontynuować strategie zainwestowania w badania i rozwój, aby zrealizować pełny potencjał sektora.",
+    "Final_Verdict": "HOLD",
+    "Credit_Recommendation": "MONITOR",
+    "Recommendation_Rationale": "Pomimo zauważalnego wzrostu przychodów i innowacyjności, wysoki wskaźnik upadłości oraz stosunek zadłużenia do przychodów wymagają uważnego monitorowania sytuacji."
   }
 }

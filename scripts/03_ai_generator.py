@@ -9,12 +9,37 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+import requests
+
 # Configure API
 API_KEY = os.getenv("GEMINI_API_KEY")
-if API_KEY:
+USE_OLLAMA = True # Force Ollama for now as per user request
+OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "gemma2"
+
+if API_KEY and not USE_OLLAMA:
     genai.configure(api_key=API_KEY)
 else:
-    print("WARNING: GEMINI_API_KEY not found in .env. Falling back to mock data.")
+    print("Using Local LLM (Ollama).")
+
+def get_ollama_response(prompt):
+    payload = {
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False,
+        "format": "json" # Force JSON mode if model supports it, gemma might need help
+    }
+    try:
+        response = requests.post(OLLAMA_URL, json=payload)
+        response.raise_for_status()
+        text = response.json()['response']
+        # Strip <think> blocks common in R1 models
+        if "<think>" in text:
+            text = text.split("</think>")[-1].strip()
+        return text
+    except Exception as e:
+        print(f"Ollama Error: {e}")
+        return None
 
 def get_gemini_response(prompt):
     """
@@ -23,13 +48,9 @@ def get_gemini_response(prompt):
     if not API_KEY:
         return None
     
-    try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        print(f"API Error: {e}")
-        return None
+    model = genai.GenerativeModel('models/gemini-2.0-flash-lite')
+    response = model.generate_content(prompt)
+    return response.text
 
 def generate_debate_content(industry_name, status, metrics):
     """
@@ -48,24 +69,34 @@ def generate_debate_content(industry_name, status, metrics):
     Persona 1: CRO (Chief Risk Officer). Skeptical, matter-of-fact, focused on hard risks. MUST QUOTE SPECIFIC NUMBERS (e.g. "Debt ratio of X", "Bankruptcy rate is Y%", "Margins dropped to Z%"). Warns about liquidity and debt.
     Persona 2: CSO (Chief Strategy Officer). Visionary but data-driven. MUST QUOTE SPECIFIC NUMBERS (e.g. "Capex intensity of X%", "ArXiv papers count: Y"). Focuses on transformation potential (Investment + Science) vs stagnation.
     
-    Generate a JSON response with exactly this structure (no markdown formatting):
+    Generate a valid JSON object. Do not use Markdown.
+    
+    Output Format:
     {{
-        "CRO_Opinion": "3-4 sentences. Concrete, matter-of-fact risk assessment. Focus on financial stability (Liquidity, Debt, Margins).",
-        "CSO_Opinion": "3-4 sentences. Concrete, strategic assessment. Focus on future potential (Investment, Innovation/ArXiv) and growth.",
-        "Final_Verdict": "BUY" or "HOLD" or "REJECT"
+        "CRO_Opinion": "Analiza ryzyka (PLN)...",
+        "CSO_Opinion": "Analiza szans (PLN)...",
+        "Final_Verdict": "BUY/HOLD/REJECT",
+        "Credit_Recommendation": "INCREASE_EXPOSURE/MAINTAIN/MONITOR/DECREASE_EXPOSURE",
+        "Recommendation_Rationale": "Uzasadnienie..."
     }}
     
-    Rules:
-    - If status is CRITICAL, Verdict must be REJECT.
-    - If status is OPPORTUNITY, Verdict must be BUY.
-    - Else HOLD or BUY based on your assessment.
+    INSTRUCTIONS:
+    1. WRITE IN POLISH.
+    2. Fill the values with ACTUAL analysis based on the provided metrics.
+    3. CRO MUST mention Debt/Bankruptcy.
+    4. CSO MUST mention Innovation/Capex.
+    5. Do NOT output "..." or placeholders. Write full sentences.
     - LANGUAGE: POLISH.
     - Tone: Professional, concise, "matter-of-fact" (rzeczowy). No marketing fluff.
     - Reference specific metrics from the context.
     """
     
     # Try Real AI
-    ai_response = get_gemini_response(prompt)
+    # Try AI (Ollama or Gemini)
+    if USE_OLLAMA:
+        ai_response = get_ollama_response(prompt)
+    else:
+        ai_response = get_gemini_response(prompt)
     
     if ai_response:
         try:
@@ -88,14 +119,25 @@ def generate_debate_content(industry_name, status, metrics):
         f"{industry_name} to innowacja.",
     ]
     
-    verdict = "HOLD"
-    if status == 'CRITICAL': verdict = 'REJECT'
-    if status == 'OPPORTUNITY': verdict = 'BUY'
+    rec = "MONITOR"
+    rationale = "Sytuacja wymaga dalszej obserwacji."
     
+    if status == 'CRITICAL': 
+        verdict = 'REJECT'
+        rec = "DECREASE_EXPOSURE"
+        rationale = "Wysokie ryzyko upadłości i negatywne trendy."
+        
+    if status == 'OPPORTUNITY': 
+        verdict = 'BUY'
+        rec = "INCREASE_EXPOSURE"
+        rationale = "Silne fundamenty i potencjał wzrostu."
+        
     return {
         "CRO_Opinion": random.choice(cro_templates),
         "CSO_Opinion": random.choice(cso_templates),
-        "Final_Verdict": verdict
+        "Final_Verdict": verdict,
+        "Credit_Recommendation": rec,
+        "Recommendation_Rationale": rationale
     }
 
 def generate_debates():
@@ -119,6 +161,7 @@ def generate_debates():
     df_2024 = df_macro_full[df_macro_full['Year'] == 2024]
     
     debates = {}
+    output_path = os.path.join(assets_path, 'ai_debates.json')
     
     print(f"Starting generation for {len(df_2024)} Macro Industries using Gemini...")
     
@@ -139,6 +182,22 @@ def generate_debates():
                             f"Prof: {h_row['Profitability']*100:.1f}% | "
                             f"Bankrupt: {h_row['Bankruptcy_Rate']*100:.2f}%\n")
         
+        # --- GET FORECAST (2026) ---
+        forecast_row = df_full[(df_full['PKD_Code'] == pkd_code) & (df_full['Year'] == 2026) & (df_full['Is_Forecast'] == True)]
+        
+        forecast_context = "Forecast (2025-2026): Not available."
+        
+        if not forecast_row.empty:
+            rev_2026 = forecast_row.iloc[0]['Revenue']
+            rev_2024 = row.get('Revenue', 1)
+            growth_24_26 = ((rev_2026 - rev_2024) / rev_2024) * 100
+            
+            forecast_context = f"""
+            FORECAST 2026 (Linear Model):
+            - Revenue 2026: {rev_2026:,.1f} MLN PLN
+            - Growth 2024->2026: {growth_24_26:+.2f}%
+            """
+        
         # Prepare rich context
         metrics = f"""
         Current Year (2024) Snapshot:
@@ -158,19 +217,36 @@ def generate_debates():
         - S&T Score: Stability={row.get('Stability_Score', 0):.1f}, Transformation={row.get('Transformation_Score', 0):.1f}
         
         {history_str}
+        
+        {forecast_context}
         """
         
         print(f"Processing: {industry_name} ({pkd_code})...")
-        debates[pkd_code] = generate_debate_content(industry_name, status, metrics)
+        
+        # Retry Logic
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                debates[pkd_code] = generate_debate_content(industry_name, status, metrics)
+                break # Success
+            except Exception as e:
+                print(f"Error generating for {industry_name}: {e}")
+                if "429" in str(e) or "Resource has been exhausted" in str(e):
+                    wait_time = 30 * (attempt + 1)
+                    print(f"Rate limited. Waiting {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    print("Non-rate-limit error. Skipping.")
+                    break
         
         # Simple rate limiting for free tier
-        if API_KEY:
-            time.sleep(5.0)
+        if not USE_OLLAMA and API_KEY:
+            time.sleep(15.0) # Increased base sleep to be safe
         
-    # Save to JSON
-    output_path = os.path.join(assets_path, 'ai_debates.json')
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(debates, f, ensure_ascii=False, indent=2)
+        # Save Incrementally
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(debates, f, ensure_ascii=False, indent=2)
+            print(f"Saved progress for {pkd_code}")
         
     print(f"Generated debates saved to {output_path}")
 
