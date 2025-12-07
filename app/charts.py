@@ -3,65 +3,66 @@ import numpy as np
 import pandas as pd
 
 def create_risk_radar_chart(df):
-    """Creates the Bankruptcy Risk Scatter Plot."""
+    """Creates the Debt vs Risk Radar Chart."""
     fig_risk = go.Figure()
     
     if df.empty: return fig_risk
 
+    # Data Prep: Ensure Debt to Revenue is calculated
+    # Assuming df has 'Total_Debt' and 'Revenue'
+    # Use 'Debt_to_Revenue' column if available, else calc
+    if 'Debt_to_Revenue' not in df.columns:
+        df['Debt_to_Revenue'] = df.apply(lambda x: x['Total_Debt'] / x['Revenue'] if x['Revenue'] > 0 else 0, axis=1)
+
     # Scatter Trace
     fig_risk.add_trace(go.Scatter(
-        x=df['Dynamics_YoY'] * 100, # Percent
+        x=df['Debt_to_Revenue'],
         y=df['Bankruptcy_Rate'],
         mode='markers',
         text=df['Industry_Name'],
         customdata=np.stack((
             df['Revenue'], 
             df['Total_Debt'], 
-            df['Net_Profit'],
+            df['Dynamics_YoY'],
             df['PKD_Code']
         ), axis=-1),
         marker=dict(
             size=np.sqrt(df['Revenue']) / np.sqrt(df['Revenue'].max()) * 50 + 10,
-            color=df['Bankruptcy_Rate'], 
-            colorscale='RdYlGn_r', # Red-Yellow-Green REVERSED (High Risk = Red)
+            color=df['Dynamics_YoY'], 
+            colorscale='RdYlGn', # Red = Low Growth/Shrinkage (Bad), Green = High Growth
             showscale=True,
-            colorbar=dict(title="Wskaźnik Upadłości (%)"),
-            line=dict(width=1, color='DarkSlateGrey')
+            colorbar=dict(title="Dynamika R/R"),
+            line=dict(width=1, color='white') # White border for contrast
         ),
         hovertemplate="<b>%{text}</b><br>" +
                       "PKD: %{customdata[3]}<br>" +
+                      "Zadłużenie: %{x:.2f}x<br>" +
                       "Upadłości: %{y:.2f}%<br>" +
-                      "Dynamika: %{x:+.1f}%<br>" +
+                      "Dynamika: %{customdata[2]:+.1%}<br>" +
                       "Przychody: %{customdata[0]:,.0f} mln<br>" +
                       "Dług: %{customdata[1]:,.0f} mln<extra></extra>"
     ))
     
-    # Critical Zone
+    # Critical Zone (High Debt > 0.5x AND High Bankruptcy > 2%)
+    # Just a visual rectangle
     fig_risk.add_shape(type="rect",
-        x0=-100, y0=1.0, x1=0, y1=100,
+        x0=0.5, y0=1.0, x1=5.0, y1=100, # Assuming max debt around 5x visually
         line=dict(color="Red", width=1, dash="dash"),
         fillcolor="rgba(255, 0, 0, 0.1)"
     )
     
-    # Annotation if data exists
-    if not df.empty:
-        max_bankrupt = df['Bankruptcy_Rate'].max()
-        fig_risk.add_annotation(
-            x=-5, y=max_bankrupt if max_bankrupt > 1.0 else 1.0,
-            text="STREFA KRYTYCZNA",
-            showarrow=False,
-            font=dict(color="red", size=14)
-        )
+    # Axis Lines
+    fig_risk.update_xaxes(zeroline=True, zerolinewidth=1, zerolinecolor='gray')
+    fig_risk.update_yaxes(zeroline=True, zerolinewidth=1, zerolinecolor='gray')
     
     fig_risk.update_layout(
-        xaxis_title="Dynamika Przychodów R/R (%)",
+        xaxis_title="Zadłużenie (Dług / Przychody)",
         yaxis_title="Wskaźnik Upadłości (%)",
-        xaxis=dict(zeroline=True, zerolinecolor='white'),
-        yaxis=dict(zeroline=True, zerolinecolor='white'),
         height=600,
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="white")
+        font=dict(color="white"),
+        title="<b>Mapa Ryzyka:</b> Dług (Oś X) vs Upadłość (Oś Y) | Kolor = Dynamika"
     )
     return fig_risk
 

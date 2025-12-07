@@ -311,19 +311,23 @@ display_aggregates(filtered_df, title=f"Agregat dla: {selected_level_label} | {s
 col_main, col_details = st.columns([2, 1])
 # --- RISK VIEW LOGIC ---
 if view_mode == "Analiza Ryzyka (Upadłości)":
-    st.markdown("### 🛡️ Radar Ryzyka: Upadłość vs Dynamika")
+    st.markdown("### 🛡️ Radar Ryzyka: Dług vs Upadłość")
     st.markdown("""
-    **Oś X: Stability Score (Kondycja Finansowa 2.0)**
-    *Mierzy bezpieczeństwo bankowe branży.*
-    Składowe: Zyskowność (40%) + Dynamika Wzrostu (30%) + Bezpieczeństwo Długu (15%) + Płynność (15%).
+    **Oś X: Zadłużenie (Debt/Revenue)**
+    *Mierzy "dźwignię finansową" branży.*
+    Im wyższa wartość, tym bardziej zadłużona branża względem swoich przychodów.
     
-    **Oś Y: Transformation Index (Inwestycje + Innowacje)**
-    *Mierzy potencjał przyszłościowy branży.*
-    Hybrydowa ocena: 50% Intensywność Inwestycyjna (Capex) + 50% Innovation Index (ArXiv).
-    Pokazuje, kto wydaje pieniądze (Inwestycje) i kto ma zaplecze badawcze.
-
-    **Wielkość Bąbelka:** Przychody ogółem branży.
-    **Kolor:** Status (CRITICAL = Wysokie Ryzyko Upadłości).
+    **Oś Y: Wskaźnik Upadłości (%)**
+    *Mierzy realne bankructwa.*
+    Odsetek firm, które ogłosiły upadłość w danym roku.
+    
+    **Kolor: Dynamika (Czerwony = Spadek)**
+    *Pokazuje kondycję wzrostową.*
+    Czerwone punkty to branże kurczące się (recesja), Zielone to rosnące.
+    
+    **Wnioski:**
+    Punkt w prawym-górnym rogu (Wysoki Dług + Wysoka Upadłość) to **STREFA ŚMIERCI**.
+    Punkt w lewym-dolnym (Niski Dług + Niska Upadłość) to **Bezpieczna Przystań**.
     """)
     # RISK HEATMAP
     # X: Dynamics (Growth/Shrinkage)
