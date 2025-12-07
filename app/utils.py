@@ -55,3 +55,67 @@ def color_val(val, inverse=False, is_percent=False):
         
     fmt_val = f"{val:+.1f}%" if is_percent else f"{val:.2f}"
     return f'<span style="color:{color}">{fmt_val}</span>'
+
+import numpy as np
+
+def calculate_forecast(df_history, target_col, years_ahead=2):
+    """
+    Calculates linear forecast for the next 'years_ahead' years.
+    Returns a DataFrame with historical + forecast rows.
+    """
+    # 1. Prepare Data
+    df = df_history.copy().sort_values('Year')
+    
+    # Ensure Is_Forecast exists (default to False if missing)
+    if 'Is_Forecast' not in df.columns:
+        df['Is_Forecast'] = False
+    
+    # Check if 'Is_Forecast' is string "True"/"False" and convert to bool if needed
+    if df['Is_Forecast'].dtype == 'object':
+        df['Is_Forecast'] = df['Is_Forecast'].replace({'True': True, 'False': False})
+
+    # 2. Identify Real Data vs Existing Forecast
+    # We train ONLY on Real Data
+    real_df = df[df['Is_Forecast'] == False].copy()
+    
+    # If no real data, return as is
+    if len(real_df) < 2:
+        return df
+
+    # Prepare X (Years) and Y (Values)
+    x = real_df['Year'].values
+    y = real_df[target_col].values
+    
+    # Handle NaNs
+    mask = ~np.isnan(y)
+    x_clean = x[mask]
+    y_clean = y[mask]
+    
+    if len(x_clean) < 2:
+        return df
+        
+    # 3. Train Regression (Linear)
+    slope, intercept = np.polyfit(x_clean, y_clean, 1)
+    
+    # 4. Generate NEW Forecast
+    # We base the start year on the LAST REAL YEAR, not the last row (which might be an old forecast)
+    last_real_year = int(real_df['Year'].max())
+    future_years = [last_real_year + i for i in range(1, years_ahead + 1)]
+    
+    forecast_rows = []
+    for yr in future_years:
+        val = slope * yr + intercept
+        row = {
+            'Year': yr,
+            target_col: val,
+            'Is_Forecast': True,
+            'PKD_Code': real_df['PKD_Code'].iloc[0],
+            'Industry_Name': real_df['Industry_Name'].iloc[0]
+        }
+        forecast_rows.append(row)
+    
+    new_forecast_df = pd.DataFrame(forecast_rows)
+    
+    # 5. Return Real Data + New Forecast
+    # We discard old forecasts from the input to avoid duplication/confusion
+    return pd.concat([real_df, new_forecast_df], ignore_index=True)

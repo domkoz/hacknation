@@ -581,59 +581,46 @@ while current_selection_pkd and level_depth < max_depth:
     col_hist, col_sub = st.columns(2)
     
     # 1. HISTORY CHART
+    # 1. HISTORY & FORECAST CHARTS
     with col_hist:
-        st.caption(f"Historia i Prognoza (2019-2026): {current_selection_pkd}")
+        st.caption(f"📈 Trendy i Prognozy (2019-2026): {current_selection_pkd}")
         
-        # Get full history including forecast
+        # Get full history
         hist_df = df_all[df_all['PKD_Code'] == current_selection_pkd].sort_values('Year')
         
         if not hist_df.empty:
-            fig_h = go.Figure()
+            # Prepare Forecasts for Key Metrics
+            # We predict 2 years ahead (2025-2026)
             
-            # Split Data
-            is_forecast_col = 'Is_Forecast' in hist_df.columns
-            
-            if is_forecast_col:
-                real_df = hist_df[hist_df['Is_Forecast'] == False]
-                forecast_df = hist_df[hist_df['Is_Forecast'] == True]
-                
-                # Add last real point to forecast to bridge the gap
-                if not real_df.empty and not forecast_df.empty:
-                    last_real = real_df.iloc[[-1]]
-                    forecast_plot = pd.concat([last_real, forecast_df])
-                else:
-                    forecast_plot = forecast_df
-            else:
-                real_df = hist_df
-                forecast_plot = pd.DataFrame()
-                
-            # Plot Real
-            fig_h.add_trace(go.Scatter(
-                x=real_df['Year'], 
-                y=real_df['Revenue'], 
-                name='Przychody (Historia)', 
-                line=dict(color='#3498db', width=3)
-            ))
-            
-            # Plot Forecast
-            if not forecast_plot.empty:
-                fig_h.add_trace(go.Scatter(
-                    x=forecast_plot['Year'], 
-                    y=forecast_plot['Revenue'], 
-                    name='Prognoza (2025-26)', 
-                    line=dict(color='#f1c40f', width=3, dash='dot')
-                ))
+            # 1. Rentowność (Marża Netto)
+            df_profit = utils.calculate_forecast(hist_df, 'Net_Profit_Margin', years_ahead=2)
+            fig_profit = charts.create_historical_chart(df_profit, 'Net_Profit_Margin', 'Rentowność (Marża)', 'Marża %', is_percent=False)
 
-            fig_h.update_layout(
-                height=300, 
-                margin=dict(l=0,r=0,t=20,b=0), 
-                paper_bgcolor='rgba(0,0,0,0)', 
-                plot_bgcolor='rgba(0,0,0,0)', 
-                font=dict(color='white'),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-            )
-            st.plotly_chart(fig_h, use_container_width=True, key=f"hist_{level_depth}_{current_selection_pkd}")
+            # 2. Zadłużenie (Dług / Przychody)
+            # Ensure col exists
+            if 'Debt_to_Revenue' not in hist_df.columns:
+                 hist_df['Debt_to_Revenue'] = hist_df['Total_Debt'] / hist_df['Revenue']
+            df_debt = utils.calculate_forecast(hist_df, 'Debt_to_Revenue', years_ahead=2)
+            fig_debt = charts.create_historical_chart(df_debt, 'Debt_to_Revenue', 'Zadłużenie (Debt/Rev)', 'x', is_percent=False)
             
+            # 3. Płynność (Cash Ratio)
+            df_cash = utils.calculate_forecast(hist_df, 'Cash_Ratio', years_ahead=2)
+            fig_cash = charts.create_historical_chart(df_cash, 'Cash_Ratio', 'Płynność (Gotówka)', 'Ratio', is_percent=False)
+            
+            # 4. Ryzyko (Upadłość)
+            df_risk = utils.calculate_forecast(hist_df, 'Bankruptcy_Rate', years_ahead=2)
+            fig_risk_chart = charts.create_historical_chart(df_risk, 'Bankruptcy_Rate', 'Ryzyko Upadłości', '% Firm', is_percent=False)
+            
+            # Display in Grid
+            t1, t2 = st.tabs(["📊 Finanse", "🛡️ Ryzyko"])
+            
+            with t1:
+                st.plotly_chart(fig_profit, use_container_width=True, key=f"p_hist_{level_depth}_{current_selection_pkd}")
+                st.plotly_chart(fig_debt, use_container_width=True, key=f"d_hist_{level_depth}_{current_selection_pkd}")
+                
+            with t2:
+                st.plotly_chart(fig_risk_chart, use_container_width=True, key=f"r_hist_{level_depth}_{current_selection_pkd}")
+                st.plotly_chart(fig_cash, use_container_width=True, key=f"c_hist_{level_depth}_{current_selection_pkd}")
     # 2. CHILDREN CHART
     next_selection = None
     with col_sub:

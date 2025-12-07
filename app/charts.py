@@ -118,3 +118,67 @@ def create_main_bubble_chart(df, max_revenue_global=None):
     )
     
     return fig
+
+def create_historical_chart(df, metric_col, title, y_axis_title, is_percent=False):
+    """Creates a historical line chart with forecast."""
+    fig = go.Figure()
+    
+    if df.empty: return fig
+    
+    # Split Real vs Forecast
+    # Note: We must ensure 'Is_Forecast' col exists or assume False
+    if 'Is_Forecast' not in df.columns:
+        df['Is_Forecast'] = False
+        
+    real_df = df[df['Is_Forecast'] == False]
+    forecast_df = df[df['Is_Forecast'] == True]
+    
+    # Add Last Real Point to Forecast to make line continuous
+    if not real_df.empty and not forecast_df.empty:
+        last_real = real_df.iloc[-1]
+        forecast_df = pd.concat([pd.DataFrame([last_real]), forecast_df], ignore_index=True)
+        
+    # Formatting
+    y_format = ".1%" if is_percent else ".2f"
+    
+    # Real Trace
+    fig.add_trace(go.Scatter(
+        x=real_df['Year'],
+        y=real_df[metric_col],
+        mode='lines+markers',
+        name='Historia',
+        line=dict(color='#3498db', width=3),
+        marker=dict(size=8),
+        text=real_df[metric_col],
+        hovertemplate=f"Rok: %{{x}}<br>{title}: %{{y:{y_format}}}<extra></extra>"
+    ))
+    
+    # Forecast Trace
+    if not forecast_df.empty:
+        fig.add_trace(go.Scatter(
+            x=forecast_df['Year'],
+            y=forecast_df[metric_col],
+            mode='lines+markers',
+            name='Prognoza (AI)',
+            line=dict(color='#f1c40f', width=3, dash='dot'),
+            marker=dict(size=8, symbol='diamond-open'),
+            text=forecast_df[metric_col],
+            hovertemplate=f"Rok: %{{x}} (Prognoza)<br>{title}: %{{y:{y_format}}}<extra></extra>"
+        ))
+        
+    fig.update_layout(
+        title=title,
+        xaxis_title="Rok",
+        yaxis_title=y_axis_title,
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="white"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    
+    if is_percent:
+        fig.update_yaxes(tickformat=".0%")
+        
+    return fig
