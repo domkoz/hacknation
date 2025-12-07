@@ -36,8 +36,7 @@ System integruje 4 niezależne strumienie danych:
 3.  **ArXiv Open API:**
     *   Liczba publikacji naukowych powiązanych z frazami "AI", "Machine Learning", "Optimization" w kontekście danej branży.
     *   Wskaźnik: `Scientific Readiness Score`.
-4.  **Google Trends (Proxy):**
-    *   Zainteresowanie społeczne daną branżą (Sentyment).
+
 
 ---
 
