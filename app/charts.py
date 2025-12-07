@@ -316,3 +316,102 @@ def create_st_time_chart(df):
     )
         
     return fig
+
+def create_stability_radar_chart(row, df_context):
+    """
+    Creates a Radar Chart visualizing the 4 components of Stability Score.
+    
+    Components:
+    1. Profitability (Margin + Profitable %)
+    2. Growth (Revenue Dynamics)
+    3. Safety (Debt Burden - Inverse)
+    4. Liquidity (Cash Ratio)
+    
+    normalization is relative to df_context (current view).
+    """
+    fig = go.Figure()
+    
+    if row is None or df_context.empty: return fig
+    
+    # Helper for relative normalization (0-100)
+    # We clip to 5th/95th percentile to avoid outliers squashing the chart
+    def rel_norm(val, col_name, inverse=False):
+        # Handle missings
+        if pd.isna(val): return 50
+        
+        vals = df_context[col_name].fillna(0)
+        min_v = vals.quantile(0.05)
+        max_v = vals.quantile(0.95)
+        
+        if max_v == min_v: return 50
+        
+        norm_val = np.clip((val - min_v) / (max_v - min_v), 0, 1)
+        if inverse:
+            norm_val = 1.0 - norm_val
+        return norm_val * 100
+
+    # Calculate Component Scores
+    # 1. Profitability
+    s_profit = rel_norm(row.get('Net_Profit_Margin', 0), 'Net_Profit_Margin')
+    
+    # 2. Growth
+    s_growth = rel_norm(row.get('Dynamics_YoY', 0), 'Dynamics_YoY')
+    
+    # 3. Safety (Debt) -> Inverse (Low debt is good)
+    # Ensure Debt_to_Revenue exists
+    if 'Debt_to_Revenue' not in df_context.columns:
+         s_debt = 50
+    else:
+         s_debt = rel_norm(row.get('Debt_to_Revenue', 0), 'Debt_to_Revenue', inverse=True)
+    
+    # 4. Liquidity
+    s_liq = rel_norm(row.get('Cash_Ratio', 0), 'Cash_Ratio')
+    
+    # Data for Radar
+    categories = ['Zyskowność', 'Wzrost (YoY)', 'Bezpieczeństwo (Dług)', 'Płynność (Gotówka)']
+    values = [s_profit, s_growth, s_debt, s_liq]
+    
+    # Close the loop
+    values += [values[0]]
+    categories += [categories[0]]
+    
+    fig.add_trace(go.Scatterpolar(
+        r=values,
+        theta=categories,
+        fill='toself',
+        name=row['Industry_Name'],
+        line=dict(color='#2ecc71'),
+        fillcolor='rgba(46, 204, 113, 0.4)'
+    ))
+    
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                showticklabels=False,
+                gridcolor='rgba(128,128,128,0.5)'
+            ),
+            angularaxis=dict(
+                tickfont=dict(size=11, color='white'),
+                gridcolor='rgba(128,128,128,0.5)',
+                rotation=90
+            ),
+            bgcolor='rgba(0,0,0,0)'
+        ),
+        showlegend=False,
+        height=300,
+        margin=dict(l=40, r=40, t=30, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="white"),
+        title=dict(
+            text="Profil Ryzyka (Stability)",
+            y=0.98,
+            x=0.5,
+            xanchor='center',
+            yanchor='top',
+            font=dict(size=14, color='white')
+        )
+    )
+    
+    return fig

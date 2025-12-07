@@ -620,6 +620,10 @@ with col_details:
         m1.metric("Stability", f"{selected_row.get('Stability_Score', 0):.1f}", delta_color="normal")
         m2.metric("Transformation", f"{selected_row.get('Transformation_Score', 0):.1f}", delta_color="normal")
         
+        # --- STABILITY RADAR CHART ---
+        radar_fig = charts.create_stability_radar_chart(selected_row, filtered_df)
+        st.plotly_chart(radar_fig, use_container_width=True, config={'displayModeBar': False})
+        
         # Detailed Breakdown
         with st.expander("📊 Szczegóły Wyliczeń (Dynamiczne)"):
             # Helper for colors
