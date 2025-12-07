@@ -14,7 +14,14 @@ def load_data():
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_path = os.path.join(base_path, 'data')
     processed_path = os.path.join(data_path, 'processed_real_index.csv')
-    return pd.read_csv(processed_path)
+    df = pd.read_csv(processed_path)
+    
+    # Filter out "Dead Entities" / Outliers
+    # Rows where both Revenue and Total_Debt are 0 (likely dormant or data errors)
+    # This prevents crowding at (0,0) on charts.
+    df = df[~((df['Revenue'] == 0) & (df['Total_Debt'] == 0))]
+    
+    return df
 
 def load_debates():
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
