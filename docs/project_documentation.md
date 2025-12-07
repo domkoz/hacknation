@@ -42,76 +42,70 @@ System integruje 4 niezależne strumienie danych:
 ---
 
 ## 🧮 Metodologia i Wzory (Core Metrics)
-
-Serce systemu. Każda branża otrzymuje zestaw ocen punktowych (0-100 lub znormalizowanych 0-1).
+Szczegółowe wzory matematyczne znajdują się w dokumentach: `docs/metrics_compendium_pl.md` oraz `docs/metrics_compendium.md`.
 
 ### 1. Stability Score (Kondycja Finansowa)
-Ocenia bezpieczeństwo kredytowe branży.
-**Formuła:**
-$$ Stability = 0.4 \times P + 0.3 \times G + 0.15 \times D + 0.15 \times L $$
+Ocenia bezpieczeństwo kredytowe branży. Korzysta z modelu wagowego (domyślnie 4:3:3).
+*   **Komponenty:** Zyskowność (Marża + % Rentownych), Wzrost (YoY), Bezpieczeństwo (Dług i Płynność).
+*   **Wersja Prognozy (2026):** Obliczana metodą **Absolute Scoring** (sztywne progi), aby umożliwić porównanie w czasie.
 
-*   **P (Profitability):** Znormalizowana Marża Zysku Netto + % Firm Rentownych.
-*   **G (Growth):** Dynamika Przychodów r/r (Year-over-Year).
-*   **D (Debt Security):** Odwrotność wskaźnika Dług/Przychody (Im mniej długu, tym lepiej).
-*   **L (Liquidity):** Wskaźnik Płynności (Cash Ratio).
-
-### 2. Innovation Index (Potencjał Transformacji)
+### 2. Transformation Score (f.k.a. Innovation Index)
 Ocenia zdolność branży do adaptacji w przyszłości.
 **Formuła:**
-$$ Transformation = 0.5 \times CI + 0.5 \times SO $$
-
-*   **CI (Capex Intensity):** Nakłady Inwestycyjne (Capex) / Przychody Ogółem.
-*   **SO (Scientific Output):** Znormalizowana liczba publikacji ArXiv.
+`Transformation = 50% Capex Intensity + 50% ArXiv AI Papers`
+*   **Capex:** Inwestycje w środki trwałe.
+*   **ArXiv:** Hype innowacyjny (Software/Wiedza).
 
 ### 3. Lending Opportunity Score (Dla Banku)
 Identyfikuje idealnych klientów: potrzebujących kapitału (Inwestycje), ale bezpiecznych.
 **Formuła:**
-$$ Lending = 0.4 \times Capex + 0.4 \times Stability + 0.2 \times Liquidity $$
+$$ Lending = 0.4 \times FutureTransformation(2026) + 0.4 \times CurrentStability + 0.2 \times LiquidityFactor $$
+
+*   **Future Transformation:** Potencjał wzrostu za 2 lata.
+*   **Current Stability:** Bieżąca wypłacalność.
+*   **Liquidity Factor:** Cash Ratio (z limitem 1.5x) lub Odwrotność Upadłości.
+
+---
+
+## 🏆 Ranking & Klasyfikacja (Nowość v2.0)
+System automatycznie dzieli branże na segmenty decyzyjne w zakładce "Ranking & Eksport":
+
+1.  **⚠️ Wysokie Ryzyko (Critical):** `Bankruptcy Rate > 2.5%`.
+2.  **🌟 Liderzy Przyszłości:** Wysoka Transformacja 2026 (>60) ORAZ Wysoka Stabilność 2026 (>50).
+3.  **🚀 Wschodzące Gwiazdy:** Wysoka Transformacja (>60), ale niższa Stabilność.
+4.  **🛡️ Bezpieczne Przystanie:** Wysoka Stabilność (>65).
+5.  **💰 Cel Kredytowy:** `Lending Score > 70`.
 
 ---
 
 ## 🧠 AI Boardroom (Logika Modelu Językowego)
-
-System nie tylko "wyświetla liczby", ale je "rozumie". Skrypt generuje prompt zawierający kontekst finansowy danej branży i uruchamia dwie Persony:
+System nie tylko "wyświetla liczby", ale je "rozumie". Skrypt generuje prompt zawierający kontekst finansowy danej branży i uruchamia dwie Persony symulowane przez model **Ollama (gemma2)**:
 
 ### Persona 1: CRO (Chief Risk Officer)
-*   **Cel:** Znaleźć ryzyko.
-*   **Kluczowe metryki:** Debt Ratio, Bankruptcy Rate, Marża.
-*   **Styl:** Sceptyczny, rzeczowy, ostrzegawczy.
+*   **Cel:** Znaleźć ryzyko (Dług, Marża).
+*   **Styl:** Sceptyczny, ostrzegawczy.
 
 ### Persona 2: CSO (Chief Strategy Officer)
-*   **Cel:** Znaleźć szansę.
-*   **Kluczowe metryki:** Capex, ArXiv Papers, Forecast Growth.
-*   **Styl:** Wizjonerski, nastawiony na wzrost.
+*   **Cel:** Znaleźć szansę (Capex, AI).
+*   **Styl:** Wizjonerski.
 
-### Final Verdict & Credit Decision
-Model na podstawie debaty wydaje werdykt:
-*   **Decyzja:** `BUY`, `HOLD`, `REJECT`.
-*   **Rekomendacja Bankowa:** `INCREASE_EXPOSURE` (Zwiększ zaangażowanie), `MAINTAIN` (Utrzymaj), `MONITOR` (Obserwuj), `DECREASE_EXPOSURE` (Redukuj).
+Werdykt debaty (`BUY`/`REJECT`) trafia na Dashboard.
 
 ---
 
 ## 🔮 Forecasting Engine 2026
-
-Moduł predykcyjny oblicza linię trendu dla przychodów.
-*   Jeśli trend historyczny (2019-2024) jest stabilny ($R^2 > 0.6$), system projektuje wzrost na lata 2025-2026.
-*   Prognoza jest wizualizowana jako **linia przerywana** na wykresach Drill-Down.
-*   Jest również "inputem" dla modelu AI (CSO powołuje się na prognozy).
+Moduł predykcyjny oblicza linię trendu dla 8 kluczowych metryk (Przychody, Marża, Dług, etc.).
+*   **Technologia:** `numpy.polyfit` (Regresja Liniowa OLS).
+*   **Horyzont:** 2 lata (2025-2026).
+*   **AI Hype Filter:** Dla danych ArXiv, model bierze pod uwagę tylko lata po 2019 r., ignorując wcześniejszy "szum".
+*   **Zastosowanie:** Prognozowane metryki są używane do obliczenia **S&T Score 2026**.
 
 ---
 
 ## ⚠️ Kill Switch (Bezpiecznik)
+System posiada wbudowany mechanizm bezpieczeństwa.
+*   **Domyślny próg:** **4.5%** (Liczba bankructw / Liczbę firm).
+*   **Efekt:** Jeśli przekroczony -> Status `CRITICAL`.
+*   Nadpisuje wszystkie rekomendacje pozytywne ("Reject").
 
-System posiada wbudowany mechanizm bezpieczeństwa z konfigurowalnym progiem.
-**Domyślna konfiguracja:**
-*   `Kill Switch Threshold`: **4.5%** (Liczba bankructw / Liczbę firm).
-    *   Wartość ta jest konfigurowalna w UI (Slider: 0.0% - 10.0%).
 
-Jeśli `Bankruptcy Rate` > Threshold:
-*   Branża otrzymuje status **CRITICAL**.
-*   Kolor na wykresie zmienia się na Czerwony.
-*   Rekomendacja AI automatycznie nadpisana lub silnie sugerująca "REJECT".
-
----
-
-*Dokumentacja wygenerowana automatycznie przez Antigravity Agent.*
