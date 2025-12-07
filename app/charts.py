@@ -43,13 +43,7 @@ def create_risk_radar_chart(df):
                       "Dług: %{customdata[1]:,.0f} mln<extra></extra>"
     ))
     
-    # Critical Zone (High Debt > 0.5x AND High Bankruptcy > 2%)
-    # Just a visual rectangle
-    fig_risk.add_shape(type="rect",
-        x0=0.5, y0=1.0, x1=5.0, y1=100, # Assuming max debt around 5x visually
-        line=dict(color="Red", width=1, dash="dash"),
-        fillcolor="rgba(255, 0, 0, 0.1)"
-    )
+
     
     # Axis Lines
     fig_risk.update_xaxes(zeroline=True, zerolinewidth=1, zerolinecolor='gray')
