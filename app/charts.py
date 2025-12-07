@@ -113,8 +113,14 @@ def create_main_bubble_chart(df, max_revenue_global=None):
         fig.add_trace(go.Scatter(
             x=subset['Stability_Score'],
             y=subset['Transformation_Score'],
-            mode='markers', # Remove text for performance, show on hover
-            text=subset['Industry_Name'], 
+            mode='markers+text', # Show text labels
+            text=subset['Industry_Name'],
+            textposition="top center",
+            textfont=dict(
+                family="sans serif",
+                size=11,
+                color="white" # Ensure visibility against dark background
+            ),
             marker=dict(
                 size=np.sqrt(subset['Revenue'] / max_rev) * 100 + 5, # Sqrt scaling
                 color=color_map.get(status, '#888'),
