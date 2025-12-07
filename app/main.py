@@ -64,7 +64,7 @@ with st.sidebar:
     df = df_all[df_all['Year'] == selected_year].copy()
     
     # --- VIEW SELECTOR ---
-    view_mode = st.radio("Tryb Widoku:", ["Macierz S&T (Główna)", "Analiza Ryzyka (Upadłości)"], index=0)
+    view_mode = st.radio("Tryb Widoku:", ["Macierz S&T (Główna)", "Analiza Ryzyka (Upadłości)", "🏆 Ranking & Eksport"], index=0)
     
     # --- SCORE CONFIGURATION ---
     with st.expander("⚙️ Konfiguracja Modelu S&T"):
@@ -190,9 +190,9 @@ with st.sidebar:
         *   **50%** Nauka (Liczba Publikacji ArXiv AI)
         
         **3. Lending Opportunity (Bank):**
-        *   **40%** Popyt na kapitał (Capex)
-        *   **40%** Bezpieczeństwo (Stability)
-        *   **20%** Płynność (Liquidity)
+        *   **40%** Potencjał (Transformation Score 2026 - Prognoza)
+        *   **40%** Stabilność (Current Stability Score)
+        *   **20%** Płynność (Cash Ratio / Inverse Risk)
         
         **4. Prognoza (Forecast):**
         *   Model liniowy (Linear Regression) na danych 2019-2024.
@@ -347,7 +347,206 @@ if view_mode == "Analiza Ryzyka (Upadłości)":
     else:
         st.success("Brak branż w strefie krytycznej dla wybranych filtrów! 🎉")
         
+
     st.stop() # Ensure Main View doesn't run
+
+# --- RANKING & EXPORT VIEW LOGIC ---
+# --- RANKING & EXPORT VIEW LOGIC ---
+if view_mode == "🏆 Ranking & Eksport":
+    st.markdown("### 🏆 Ranking Sektorów (Prognoza 2026)")
+    st.caption("Ranking oparty o **prognozowaną kondycję branż na rok 2026**, uwzględniający trendy AI, zadłużenia i rentowności.")
+    
+    # 1. FORECASTING ENGINE
+    # We iterate through each industry in the filtered view and project it to 2026.
+    
+    # progress_text = "Trwa generowanie zaawansowanych prognoz na rok 2026 dla wszystkich sektorów..."
+    # my_bar = st.progress(0, text=progress_text)
+    
+    future_rows = []
+    # total_items = len(filtered_df)
+    
+    # Metrics required for S&T Calculation + Interest
+    metrics_to_forecast = [
+        'Net_Profit_Margin', 'Debt_to_Revenue', 'Cash_Ratio', 'Bankruptcy_Rate',
+        'Dynamics_YoY', 'Profitability', 'Capex_Intensity', 'Arxiv_Papers', 'Revenue'
+    ]
+    
+    with st.spinner("Generowanie prognoz na rok 2026..."):
+        for idx, row in filtered_df.iterrows():
+            pkd = row['PKD_Code']
+            
+            # Get Full History for this entity
+            hist_df = df_all[df_all['PKD_Code'] == pkd].sort_values('Year')
+            
+            # Base for Future Row
+            # We explicitly store CURRENT scores to preserve them before recalculation
+            future_row = {
+                'PKD_Code': pkd, 
+                'Industry_Name': row['Industry_Name'], 
+                'Year': 2026,
+                'Current_Revenue': row['Revenue'],
+                'Stability_Current': row.get('Stability_Score', 0),
+                'Transformation_Current': row.get('Transformation_Score', 0),
+                'Is_Forecast': True # Trigger for utils.recalculate_future_st_scores
+            }
+            
+            # Forecast each metric
+            for metric in metrics_to_forecast:
+                try:
+                    # ArXiv Hype Fix: Train only on recent data
+                    temp_hist = hist_df.copy()
+                    if metric == 'Arxiv_Papers':
+                        temp_hist = temp_hist[temp_hist['Year'] >= 2019]
+                        
+                    # Run Regressions
+                    forecast_df = utils.calculate_forecast(temp_hist, metric, years_ahead=2) # 2024 -> 2026
+                    
+                    # Get 2026 value
+                    val_2026 = forecast_df[forecast_df['Year'] == 2026][metric].iloc[0]
+                    future_row[metric] = val_2026
+                except:
+                    # Fallback to current if forecast fails
+                    future_row[metric] = row.get(metric, 0)
+
+            future_rows.append(future_row)
+            
+    # 2. CREATE FUTURE DATAFRAME
+    df_2026 = pd.DataFrame(future_rows)
+    
+    # 3. RECALCULATE SCORES (On 2026 Data)
+    # The utils function overwrites 'Stability_Score' and 'Transformation_Score' based on the metrics in the row.
+    # Since the row now contains 2026 metrics, these will be 2026 Scores.
+    if not df_2026.empty:
+        df_2026 = utils.recalculate_future_st_scores(
+            df_2026, 
+            w_growth=w_growth, 
+            w_profit=w_profit, 
+            w_safety=w_safety
+        )
+    else:
+        # Handle empty case
+        df_2026 = pd.DataFrame(columns=['PKD_Code', 'Industry_Name', 'Transformation_Score', 'Stability_Score'])
+
+    # Rename for clarity
+    df_2026.rename(columns={
+        'Stability_Score': 'Stability_2026',
+        'Transformation_Score': 'Transformation_2026'
+    }, inplace=True)
+    
+    # 4. CALCULATE LENDING SCORE (Future Based)
+    # Using Future Transformation Score (Potential) and Future Stability (Risk)
+    # Ensure columns exist (fixes KeyError)
+    if 'Transformation_2026' not in df_2026.columns:
+         df_2026['Transformation_2026'] = 0
+    if 'Stability_2026' not in df_2026.columns:
+         df_2026['Stability_2026'] = 0
+
+    # Helper wrapper to map new names to expected keys
+    def calc_future_lending(r):
+        # We construct a mock row that looks like what calculate_lending_opportunity expects
+        # It expects 'Stability_Score' or we pass it explicit args?
+        # Function sig: calculate_lending_opportunity(current_row, future_trans_score, current_liquidity=None)
+        # Inside it uses row.get('Stability_Score')
+        # So we need to cheat or modify the function.
+        # Let's cheat by passing a mock dict
+        mock_row = r.copy()
+        mock_row['Stability_Score'] = r['Stability_2026'] # Use Future Stability? Or Current?
+        # User wants "Future" Lending Score basically.
+        # Original plan: 40% Future Trans, 40% **Current** Stability.
+        # User Request: "Stability teraz, i stability prognozowane".
+        # Let's stick to the "Lending Score 2026" being Fully Future.
+        
+        return utils.calculate_lending_opportunity(mock_row, r['Transformation_2026'])
+
+    df_2026['Lending_Score_2026'] = df_2026.apply(calc_future_lending, axis=1)
+    
+    # 5. CLASSIFICATION (Updated for Future Context)
+    def classify_future(row):
+        # 1. Critical Risk
+        if row['Bankruptcy_Rate'] > 2.5: 
+            return "⚠️ Wysokie Ryzyko (2026)"
+            
+        # 2. AI Powerhouses
+        if row['Transformation_2026'] > 60:
+            if row['Stability_2026'] > 50:
+                return "🌟 Liderzy Przyszłości"
+            else:
+                return "🚀 Wschodzące Gwiazdy"
+                
+        # 3. Cash Cows
+        if row['Stability_2026'] > 65:
+            return "🛡️ Bezpieczne Przystanie"
+         
+        # 4. Lending Targets
+        if row['Lending_Score_2026'] > 70:
+            return "💰 Cel Kredytowy"
+            
+        return "🔹 Neutralne"
+
+    df_2026['Klasyfikacja'] = df_2026.apply(classify_future, axis=1)
+    
+    # 6. DISPLAY
+    # Combine Columns
+    
+    cols = [
+        'PKD_Code', 'Industry_Name', 'Klasyfikacja', 
+        'Lending_Score_2026', 
+        'Stability_Current', 'Stability_2026', 
+        'Transformation_Current', 'Transformation_2026',
+        'Revenue', 'Dynamics_YoY', 'Bankruptcy_Rate'
+    ]
+    
+    rename_map = {
+        'Lending_Score_2026': 'Lending Opp (2026)',
+        'Stability_Current': 'Stability (Now)',
+        'Stability_2026': 'Stability (2026)',
+        'Transformation_Current': 'Transformation (Now)',
+        'Transformation_2026': 'Transformation (2026)',
+        'Revenue': 'Est. Revenue',
+        'Dynamics_YoY': 'Est. Growth',
+        'Bankruptcy_Rate': 'Est. Risk %'
+    }
+    
+    display_df = df_2026[cols].rename(columns=rename_map)
+    
+    # Sort
+    sort_col = st.selectbox("Sortuj Ranking:", list(rename_map.values()), index=0)
+    display_df = display_df.sort_values(sort_col, ascending=False).reset_index(drop=True)
+
+    st.dataframe(
+        display_df.style.format({
+            'Lending Opp (2026)': "{:.1f}",
+            'Stability (Now)': "{:.1f}",
+            'Stability (2026)': "{:.1f}",
+            'Transformation (Now)': "{:.1f}",
+            'Transformation (2026)': "{:.1f}",
+            'Est. Revenue': "{:,.0f}",
+            'Est. Growth': "{:+.1%}",
+            'Est. Risk %': "{:.2f}%"
+        }).background_gradient(subset=['Lending Opp (2026)'], cmap='Greens'),
+        column_config={
+            "Lending Opp (2026)": st.column_config.ProgressColumn("Lending Opp", min_value=0, max_value=100, format="%d"),
+            "Stability (Now)": st.column_config.NumberColumn("Stab (Now)"),
+            "Stability (2026)": st.column_config.NumberColumn("Stab (2026)"),
+            "Transformation (Now)": st.column_config.NumberColumn("Trans (Now)"),
+            "Transformation (2026)": st.column_config.NumberColumn("Trans (2026)"),
+        },
+        use_container_width=True,
+        height=600
+    )
+    
+    # Export
+    csv = display_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Pobierz Raport Prognoz (CSV 2026)",
+        data=csv,
+        file_name=f'Raport_Prognoza_2026_Sektory.csv',
+        mime='text/csv',
+        type='primary'
+    )
+    
+    st.stop()
+
 
 
 # --- CHART (LEFT) ---
@@ -497,10 +696,51 @@ with col_details:
                 """, unsafe_allow_html=True)
             
             # Recommendation
+            # --- DYNAMIC LENDING SCORE (CALCULATED ON THE FLY) ---
+            # 1. Get 2026 Forecast for Context
+            forecast_trans_score = None
+            try:
+                # Need to run forecast specifically for this item if not already done?
+                # For speed in UI, we might just estimate or look if we have it.
+                # Since we haven't run global forecast yet in this block, let's run a quick one for this row.
+                hist_data = df_all[df_all['PKD_Code'] == selected_pkd].sort_values('Year')
+                if not hist_data.empty:
+                    # Quick Forecast for Transformation Score components
+                    # Note: We need recalculate_future_st_scores functionality
+                    # Simpler approach: Calculate Forecast for 'Transformation_Score' directly if it was a column?
+                    # No, it's calculated from components. 
+                    # Let's perform the full forecast logic for this single entity.
+                    
+                    # Forecast Capex & Arxiv
+                    df_capex = utils.calculate_forecast(hist_data, 'Capex_Intensity', 2)
+                    df_arxiv = utils.calculate_forecast(hist_data, 'Arxiv_Papers', 2)
+                    
+                    # Get 2026 values
+                    future_capex = df_capex[df_capex['Year'] == 2026]['Capex_Intensity'].iloc[0]
+                    # Arxiv needs 2019+ filter inside forecast, but here we just take result if robust
+                    # Let's assume utils handled it or we do basic linear
+                    future_arxiv = df_arxiv[df_arxiv['Year'] == 2026]['Arxiv_Papers'].iloc[0]
+                    
+                    # Normalize & Score (Manual Re-impl or Helper?)
+                    # Let's simple-norm using bounds from utils
+                    b_capex = utils.norm(future_capex, *utils.bounds['Capex_Intensity'])
+                    b_arxiv = utils.norm(future_arxiv, *utils.bounds['Arxiv_Papers'])
+                    
+                    forecast_trans_score = ((0.5 * b_capex) + (0.5 * b_arxiv)) * 100
+            except:
+                pass
+            
+            # 2. Compute Score
+            lending_score = utils.calculate_lending_opportunity(selected_row, forecast_trans_score)
+            
             st.markdown(f"""
             <div class="verdict-box">WERDYKT: {debate.get('Final_Verdict','')}</div>
             <div style="background-color: #f1c40f; padding: 5px; border-radius: 5px; margin-top: 5px; text-align: center; color: black; font-weight: bold;">
                 BANK: {debate.get('Credit_Recommendation', 'DECISION_PENDING')}
+            </div>
+            <div style="margin-top: 10px; font-weight: bold; font-size: 1.1em;">
+                 Opportunity Score: {lending_score:.1f}/100 
+                 <span style="font-size:0.8em; color:gray;">(incl. 2026 Forecast)</span>
             </div>
             <div style="text-align: center; font-style: italic; font-size: 0.9em; margin-top: 5px;">
                 "{debate.get('Recommendation_Rationale', '')}"

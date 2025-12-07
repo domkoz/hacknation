@@ -234,3 +234,43 @@ def recalculate_future_st_scores(df_full, w_growth=4.0, w_profit=6.0, w_safety=3
     df['Transformation_Score'] = scores[1]
     
     return df
+
+def calculate_lending_opportunity(current_row, future_trans_score, current_liquidity=None):
+    """
+    Calculates Lending Opportunity Score (0-100).
+    
+    Formula:
+    - 40% Future Potential (Forecast Transformation Score)
+    - 40% Current Stability (Current Stability Score)
+    - 20% Liquidity/Risk (Cash Ratio or Inverse Bankruptcy)
+    """
+    # 1. Future Potential (0-100)
+    # If no forecast (NaN), use current Transformation Score
+    pot_score = future_trans_score
+    if pd.isna(pot_score):
+        pot_score = current_row.get('Transformation_Score', 0)
+        
+    # 2. Stability (0-100)
+    stab_score = current_row.get('Stability_Score', 0)
+    
+    # 3. Liquidity / Risk Modifier (0-100)
+    # We try to use Cash Ratio first, mapped 0.0-1.0
+    # If not available, use inverse Bankruptcy Rate
+    
+    liq_score = 50 # Default Neutral
+    
+    val_cash = current_row.get('Cash_Ratio', None)
+    if val_cash is not None and not pd.isna(val_cash):
+        # Clip 0 to 1.5 => 0 to 100
+        liq_score = min(val_cash / 1.5, 1.0) * 100
+    else:
+        # Fallback to Bankruptcy
+        val_fail = current_row.get('Bankruptcy_Rate', 0)
+        # 0% fail => 100 score, 5% fail => 0 score
+        liq_score = max(0, (5 - val_fail) / 5) * 100
+        
+    # Weighted Sum
+    # 40% Potential, 40% Stability, 20% Liquidity
+    final_score = (0.4 * pot_score) + (0.4 * stab_score) + (0.2 * liq_score)
+    
+    return final_score
