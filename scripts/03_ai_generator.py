@@ -57,7 +57,44 @@ def generate_debate_content(industry_name, status, metrics):
     Generates debate content using either Gemini (if available) or Mock templates.
     """
     
-    # --- PROMPT DESIGN ---
+    # --- INTERNAL HELPER FOR SPECIALIST ---
+    def get_specialist_opinion(industry, metrics_text, forecast_text):
+        prompt_spec = f"""
+        Role: Industry Specialist for '{industry}'.
+        Task: Provide a concise, insider commentary on the current state of this industry in Poland (2024).
+        
+        Data Context:
+        {metrics_text}
+        {forecast_text}
+        
+        Output Format:
+        JSON object with a single key "opinion".
+        Exmaple: {{ "opinion": "Twoja opinia..." }}
+        
+        Content Instructions:
+        Focus on specific operational challenges or opportunities relevant to {industry} (e.g. supply chain, labor costs, technology adoption).
+        Write in POLISH.
+        """
+        raw_resp = ""
+        if USE_OLLAMA:
+            raw_resp = get_ollama_response(prompt_spec)
+        else:
+            raw_resp = get_gemini_response(prompt_spec)
+            
+        if raw_resp:
+            try:
+                # Cleanup and parse
+                clean = raw_resp.replace('```json', '').replace('```', '').strip()
+                data = json.loads(clean)
+                return data.get("opinion", raw_resp)
+            except:
+                return raw_resp
+        return "Brak opinii."
+
+    # 1. Get Specialist Opinion first
+    specialist_opinion = get_specialist_opinion(industry_name, metrics, "")
+    
+    # 2. Generate Board Debate with Context
     prompt = f"""
     You are simulating a boardroom debate for a bank regarding the industry: '{industry_name}'.
     
@@ -66,15 +103,23 @@ def generate_debate_content(industry_name, status, metrics):
     - Key Metrics & History: 
     {metrics}
     
-    Persona 1: CRO (Chief Risk Officer). Skeptical, matter-of-fact, focused on hard risks. MUST QUOTE SPECIFIC NUMBERS (e.g. "Debt ratio of X", "Bankruptcy rate is Y%", "Margins dropped to Z%"). Warns about liquidity and debt.
-    Persona 2: CSO (Chief Strategy Officer). Visionary but data-driven. MUST QUOTE SPECIFIC NUMBERS (e.g. "Capex intensity of X%", "ArXiv papers count: Y"). Focuses on transformation potential (Investment + Science) vs stagnation.
+    *** SPECIALIST OPINION ***
+    An industry expert stated: "{specialist_opinion}"
+    **************************
+    
+    Persona 1: CRO (Chief Risk Officer). Skeptical. MUST QUOTE SPECIFIC NUMBERS.
+    *INSTRUCTION*: Start your opinion by referring to the Specialist's claim (agree or disagree), then add your risk analysis.
+    
+    Persona 2: CSO (Chief Strategy Officer). Visionary. MUST QUOTE SPECIFIC NUMBERS.
+    *INSTRUCTION*: Start your opinion by referring to the Specialist's claim (agree or refute), then add your opportunity analysis.
     
     Generate a valid JSON object. Do not use Markdown.
     
     Output Format:
     {{
-        "CRO_Opinion": "Analiza ryzyka (PLN)...",
-        "CSO_Opinion": "Analiza szans (PLN)...",
+        "Specialist_Opinion": "{specialist_opinion}",
+        "CRO_Opinion": "Odnosząc się do specjalisty... [reszta opinii]",
+        "CSO_Opinion": "W nawiązaniu do eksperta... [reszta opinii]",
         "Final_Verdict": "BUY/HOLD/REJECT",
         "Credit_Recommendation": "INCREASE_EXPOSURE/MAINTAIN/MONITOR/DECREASE_EXPOSURE",
         "Recommendation_Rationale": "Uzasadnienie..."
@@ -82,17 +127,12 @@ def generate_debate_content(industry_name, status, metrics):
     
     INSTRUCTIONS:
     1. WRITE IN POLISH.
-    2. Fill the values with ACTUAL analysis based on the provided metrics.
-    3. CRO MUST mention Debt/Bankruptcy.
-    4. CSO MUST mention Innovation/Capex.
-    5. Do NOT output "..." or placeholders. Write full sentences.
-    - LANGUAGE: POLISH.
-    - Tone: Professional, concise, "matter-of-fact" (rzeczowy). No marketing fluff.
-    - Reference specific metrics from the context.
+    2. Respond to the Specialist.
+    3. CRO mentions Debt/Bankruptcy.
+    4. CSO mentions Innovation/Capex.
     """
     
     # Try Real AI
-    # Try AI (Ollama or Gemini)
     if USE_OLLAMA:
         ai_response = get_ollama_response(prompt)
     else:
@@ -100,44 +140,24 @@ def generate_debate_content(industry_name, status, metrics):
     
     if ai_response:
         try:
-            # Clean up potential markdown formatting ```json ... ```
             clean_json = ai_response.replace('```json', '').replace('```', '').strip()
-            return json.loads(clean_json)
+            data = json.loads(clean_json)
+            # Ensure Specialist Opinion is passed through if AI forgot it
+            if "Specialist_Opinion" not in data or not data["Specialist_Opinion"]:
+                data["Specialist_Opinion"] = specialist_opinion
+            return data
         except json.JSONDecodeError:
-            print(f"JSON Parse Error for {industry_name}. Fallback to mock.")
+            print(f"JSON Parse Error. Fallback.")
             pass
 
     # --- FALLBACK MOCK ---
-    cro_templates = [
-        f"Ryzyko w branży {industry_name} jest niepokojące.",
-        f"Koszty stałe w {industry_name} rosną. Zalecam ostrożność.",
-        f"Zadłużenie {industry_name} to problem.",
-    ]
-    cso_templates = [
-        f"Trendy dla {industry_name} są obiecujące.",
-        f"Technologia zmienia {industry_name}. Widzę potencjał.",
-        f"{industry_name} to innowacja.",
-    ]
-    
-    rec = "MONITOR"
-    rationale = "Sytuacja wymaga dalszej obserwacji."
-    
-    if status == 'CRITICAL': 
-        verdict = 'REJECT'
-        rec = "DECREASE_EXPOSURE"
-        rationale = "Wysokie ryzyko upadłości i negatywne trendy."
-        
-    if status == 'OPPORTUNITY': 
-        verdict = 'BUY'
-        rec = "INCREASE_EXPOSURE"
-        rationale = "Silne fundamenty i potencjał wzrostu."
-        
     return {
-        "CRO_Opinion": random.choice(cro_templates),
-        "CSO_Opinion": random.choice(cso_templates),
-        "Final_Verdict": verdict,
-        "Credit_Recommendation": rec,
-        "Recommendation_Rationale": rationale
+        "Specialist_Opinion": f"Branża {industry_name} boryka się z problemami podażowymi.",
+        "CRO_Opinion": f"Zgadzam się z ekspertem. Ryzyko w branży {industry_name} jest niepokojące.",
+        "CSO_Opinion": f"Mimo uwag eksperta, trendy dla {industry_name} są obiecujące.",
+        "Final_Verdict": "HOLD",
+        "Credit_Recommendation": "MONITOR",
+        "Recommendation_Rationale": "Brak danych."
     }
 
 def generate_debates():

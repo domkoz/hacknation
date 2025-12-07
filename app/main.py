@@ -424,19 +424,20 @@ with col_details:
             # Debate Content
             debate = debates.get(selected_pkd)
             if debate:
-                st.markdown(f"""
-                <div class="cro-bubble">
-                    <strong>👩‍💼 CRO:</strong> "{debate['CRO_Opinion']}"
-                </div>
-                <div class="cso-bubble">
-                    <strong>🚀 CSO:</strong> "{debate['CSO_Opinion']}"
-                </div>
-                <div class="verdict-box {'verdict-buy' if debate['Final_Verdict']=='BUY' else 'verdict-reject' if debate['Final_Verdict']=='REJECT' else 'verdict-hold'}">
-                    WERDYKT: {debate['Final_Verdict']}
-                </div>
+                specialist_op = debate.get('Specialist_Opinion', '')
+                spec_html = ""
+                if specialist_op:
+                    spec_html = f"""<div class="specialist-bubble">
+                        <strong>&#128119; Specjalista Branżowy:</strong> "{specialist_op}"
+                    </div>"""
                 
-                <div style="margin-top: 10px; padding: 10px; border-radius: 5px; background-color: {'#2ecc71' if 'INCREASE' in debate.get('Credit_Recommendation', '') else '#ff4b4b' if 'DECREASE' in debate.get('Credit_Recommendation', '') else '#f1c40f'}; color: black; font-weight: bold; text-align: center;">
-                    🏦 BANK: {debate.get('Credit_Recommendation', 'N/A')}
+                st.markdown(f"""
+                {spec_html}
+                <div class="cro-bubble"><strong>&#128105; CRO:</strong> "{debate.get('CRO_Opinion','')}"</div>
+                <div class="cso-bubble"><strong>&#128640; CSO:</strong> "{debate.get('CSO_Opinion','')}"</div>
+                <div class="verdict-box">WERDYKT: {debate.get('Final_Verdict','')}</div>
+                <div style="background-color: #f1c40f; padding: 5px; border-radius: 5px; margin-top: 5px; text-align: center; color: black; font-weight: bold;">
+                    BANK: {debate.get('Credit_Recommendation', 'DECISION_PENDING')}
                 </div>
                 <div style="text-align: center; font-style: italic; font-size: 0.9em; margin-top: 5px;">
                     "{debate.get('Recommendation_Rationale', '')}"
