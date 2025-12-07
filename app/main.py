@@ -53,7 +53,8 @@ with st.sidebar:
     
     # --- TIME SLIDER (New!) ---
     min_year = int(df_all['Year'].min())
-    max_year = int(df_all['Year'].max())
+    # Limit max year to 2024 as per request (forecasts shown separately)
+    max_year = 2024 
     
     selected_year = st.slider("Wybierz Rok:", min_value=min_year, max_value=max_year, value=2024)
     
