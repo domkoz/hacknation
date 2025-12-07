@@ -74,7 +74,7 @@ def create_risk_radar_chart(df):
     )
     return fig_risk
 
-def create_main_bubble_chart(df, max_revenue_global=None):
+def create_main_bubble_chart(df, max_revenue_global=None, highlight_pkd=None):
     """
     Creates the main S&T Matrix Bubble Chart.
     
@@ -113,14 +113,8 @@ def create_main_bubble_chart(df, max_revenue_global=None):
         fig.add_trace(go.Scatter(
             x=subset['Stability_Score'],
             y=subset['Transformation_Score'],
-            mode='markers+text', # Show text labels
-            text=subset['Industry_Name'],
-            textposition="top center",
-            textfont=dict(
-                family="sans serif",
-                size=11,
-                color="white" # Ensure visibility against dark background
-            ),
+            mode='markers', # Default hidden text
+            text=subset['Industry_Name'], # Needed for hover
             marker=dict(
                 size=np.sqrt(subset['Revenue'] / max_rev) * 100 + 5, # Sqrt scaling
                 color=color_map.get(status, '#888'),
@@ -135,6 +129,33 @@ def create_main_bubble_chart(df, max_revenue_global=None):
                           "Transformation: %{y:.1f}<br>" +
                           "Revenue: %{customdata[1]:,.0f} mln PLN<extra></extra>"
         ))
+        
+    # HIGHLIGHT SELECTED BUBBLE (If exists)
+    if highlight_pkd:
+        highlight_row = df[df['PKD_Code'] == highlight_pkd]
+        if not highlight_row.empty:
+            h_row = highlight_row.iloc[0]
+            fig.add_trace(go.Scatter(
+                x=[h_row['Stability_Score']],
+                y=[h_row['Transformation_Score']],
+                mode='markers+text',
+                text=[h_row['Industry_Name']],
+                textposition="top center",
+                textfont=dict(
+                    family="sans serif",
+                    size=14, # Larger
+                    color="white",
+                    weight="bold"  # Not a standard property but size helps
+                ),
+                marker=dict(
+                    size=np.sqrt(h_row['Revenue'] / max_rev) * 100 + 10, # Slightly larger
+                    color=color_map.get(h_row['Status'], '#888'),
+                    line=dict(width=3, color='yellow') # Highlight Border
+                ),
+                name="Selected",
+                showlegend=False,
+                hoverinfo='skip' # Already shown by main bubble
+            ))
         
     # Draw Quadrant Lines
     fig.add_hline(y=50, line_dash="dash", line_color="gray", annotation_text="Transformation Threshold")

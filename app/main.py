@@ -549,14 +549,52 @@ if view_mode == "🏆 Ranking & Eksport":
 
 
 
+# --- SELECTION LOGIC (PRE-CALC) ---
+# We need this BEFORE the chart to pass the 'highlight' parameter
+selection = st.session_state.get("bubble_chart", {}).get("selection", {}).get("points", [])
+selected_pkd = None
+selected_row = None
+
+# 1. Chart Selection Priority
+if selection:
+    point = selection[0]
+    x_val = point['x']
+    y_val = point['y']
+    
+    # Find exact match
+    possible_rows = filtered_df[
+        (abs(filtered_df['Stability_Score'] - x_val) < 0.001) & 
+        (abs(filtered_df['Transformation_Score'] - y_val) < 0.001)
+    ]
+    
+    if not possible_rows.empty:
+        selected_row = possible_rows.iloc[0]
+        selected_pkd = str(selected_row['PKD_Code'])
+        
+# 2. Fallback: Auto-select Sector if no point clicked but Sector Filter is active
+elif selected_sector != "Wszystkie":
+    try:
+        sec_letter = selected_sector.split(' - ')[0] # "F"
+        target_pkd = f"SEK_{sec_letter}"
+        
+        # Check if in current filtered_df
+        rows = filtered_df[filtered_df['PKD_Code'] == target_pkd]
+        if not rows.empty:
+            selected_row = rows.iloc[0]
+            selected_pkd = str(selected_row['PKD_Code'])
+    except:
+        pass
+
 # --- CHART (LEFT) ---
 with col_main:
     # Calculate max revenue for global scaling
     max_rev_global = df_all['Revenue'].max()
     
-    fig = charts.create_main_bubble_chart(filtered_df, max_rev_global)
+    # Pass selected_pkd to the chart function
+    fig = charts.create_main_bubble_chart(filtered_df, max_rev_global, highlight_pkd=selected_pkd)
 
     # Display Chart
+    # Important: selection_mode="points" enables the click interaction
     st.plotly_chart(fig, use_container_width=True, key="bubble_chart", on_select="rerun", selection_mode="points")
 
 
@@ -564,49 +602,10 @@ with col_main:
 with col_details:
     st.subheader("AI Boardroom")
     
-    # Check if a point is selected
-    # Check if a point is selected
-    selection = st.session_state.get("bubble_chart", {}).get("selection", {}).get("points", [])
-    
-    selected_pkd = None
-    selected_row = None
-    
-    # 1. Chart Selection Priority
-    if selection:
-        point = selection[0]
-        x_val = point['x']
-        y_val = point['y']
-        
-        # Find exact match
-        possible_rows = filtered_df[
-            (abs(filtered_df['Stability_Score'] - x_val) < 0.001) & 
-            (abs(filtered_df['Transformation_Score'] - y_val) < 0.001)
-        ]
-        
-        if not possible_rows.empty:
-            selected_row = possible_rows.iloc[0]
-            selected_pkd = str(selected_row['PKD_Code'])
-            
-    # 2. Fallback: Auto-select Sector if no point clicked but Sector Filter is active
-    elif selected_sector != "Wszystkie":
-        # Extract Section Letter from "F - BUDOWNICTWO"
-        try:
-            sec_letter = selected_sector.split(' - ')[0] # "F"
-            target_pkd = f"SEK_{sec_letter}"
-            
-            # Find row for this Section (global lookup or filtered)
-            # We want the attributes of the Section itself.
-            # Usually 'filtered_df' might only contain children if level is drilled, 
-            # BUT if level is L1 (Sekcje), it's there. 
-            # If level is L2, the Section row is filtered out.
-            # So we look at 'df_all' for the Section row details.
-            
-            sec_row_df = df_all[(df_all['PKD_Code'] == target_pkd) & (df_all['Year'] == selected_year)]
-            if not sec_row_df.empty:
-                selected_row = sec_row_df.iloc[0]
-                selected_pkd = target_pkd
-        except:
-            pass
+    # Logic moved up, just using result now
+    if not selected_row is None:
+        # Pass (logic continues below...)
+        pass
             
     # DISPLAY SELECTION DETAILS
     if selected_row is not None:
