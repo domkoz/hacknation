@@ -207,34 +207,58 @@ def load_and_process_real_data():
 
     # --- MERGE ARXIV HYPE DATA ---
     import json
-    arxiv_path = 'data/arxiv_hype.json'
+    # Load ArXiv Data (Yearly Nested Dict)
+    """
+    Structure:
+    {
+        "SEK_A": { "2019": 10, "2020": 25 ... },
+        ...
+    }
+    """
+    arxiv_path = 'data/arxiv_daily_hype.json' # Updated name
     arxiv_map = {}
     if os.path.exists(arxiv_path):
         with open(arxiv_path, 'r') as f:
             arxiv_map = json.load(f)
             
-    # Helper to map PKD to Section Code for ArXiv
-    # We already define section_map in this script! Let's reuse the reverse mapping.
-    # section_map: 'SEK_A': ['01', '02', '03']
-    pkd_to_section = {}
-    for sek, divs in section_map.items():
-        for d in divs:
-            pkd_to_section[d] = sek
-            
-    def get_arxiv_score(pkd_code):
-        code_str = str(pkd_code).strip()
-        # Direct match for Section codes (SEK_A etc.)
+    # Function to get score based on PKD (mapped to Section) and Year
+    def get_arxiv_score(pkd_code, year):
+        code_str = str(pkd_code)
+        year_str = str(int(year))
+        
+        # 1. Check if direct match in map (unlikely for PKD, likely for SEK_)
         if code_str in arxiv_map:
-            return arxiv_map[code_str]
+            return arxiv_map[code_str].get(year_str, 0)
             
-        # Extract first 2 digits for Sub-sectors
-        prefix = code_str.replace('.', '').strip()[:2]
-        if prefix in pkd_to_section:
-            sek = pkd_to_section[prefix]
-            return arxiv_map.get(sek, 0)
+        # 2. Map PKD digit to Section
+        # This mapping must align with scripts/05_arxiv_loader.py SECTION_MAP
+        sek = None
+        if code_str.startswith('SEK_'):
+            sek = code_str
+        elif code_str[0].isdigit():
+            # Basic mapping
+            ranges = {
+                'SEK_A': (1, 3), 'SEK_B': (5, 9), 'SEK_C': (10, 33), 'SEK_D': (35, 35), 'SEK_E': (36, 39),
+                'SEK_F': (41, 43), 'SEK_G': (45, 47), 'SEK_H': (49, 53), 'SEK_I': (55, 56), 'SEK_J': (58, 63),
+                'SEK_K': (64, 66), 'SEK_L': (68, 68), 'SEK_M': (69, 75), 'SEK_N': (77, 82), 'SEK_O': (84, 84),
+                'SEK_P': (85, 85), 'SEK_Q': (86, 88), 'SEK_R': (90, 93), 'SEK_S': (94, 96)
+            }
+            try:
+                prefix = int(code_str.split('.')[0])
+                for section, (start, end) in ranges.items():
+                    if start <= prefix <= end:
+                        sek = section
+                        break
+            except:
+                pass
+        
+        if sek and sek in arxiv_map:
+            return arxiv_map[sek].get(year_str, 0)
+            
         return 0
 
-    df_merged['Arxiv_Papers'] = df_merged['PKD_Code'].apply(get_arxiv_score)
+    # Apply to every row (axis=1) because now it depends on Year
+    df_merged['Arxiv_Papers'] = df_merged.apply(lambda x: get_arxiv_score(x['PKD_Code'], x['Year']), axis=1)
 
     # --- CALCULATE S&T SCORE ---
     def calculate_scores(group):

@@ -198,46 +198,22 @@ with st.sidebar:
         *   Predykcja dla lat 2025-2026.
         """)
     
-    # --- DYNAMIC STABILITY SCORE CALCULATION ---
-    # We recalculate Stability Score based on:
-    # 1. Growth: Dynamics_YoY (Higher is better)
-    # 2. Profitability: Combine Profitability (%) and Net_Profit_Margin (Higher is better)
-    # 3. Safety: Combine Cash_Ratio (High is better) - Debt_to_Revenue (Low is better) - Bankruptcy_Rate (Low is better)
+    # --- DYNAMIC STABILITY & TRANSFORMATION SCORE CALCULATION ---
+    # We use the SHARED UTILITY to ensure consistency between the Matrix Chart and the Time Series Forecast.
+    # This ensures that sidebar sliders affect BOTH the bubbles and the future trend lines.
+    # And it ensures normalization is ABSOLUTE (comparable across years) rather than RELATIVE (checking who is best in 2024).
     
     if not filtered_df.empty:
-        # 1. Growth
-        norm_growth = utils.normalize(filtered_df['Dynamics_YoY'])
-        
-        # 2. Profitability (Mix of Share of Profitable Entities and Net Margin)
-        # Net Margin can be negative. Normalize carefully.
-        norm_margin = utils.normalize(filtered_df['Net_Profit_Margin'])
-        norm_prof_share = utils.normalize(filtered_df['Profitability'])
-        norm_profitability = (norm_margin + norm_prof_share) / 2
-        
-        # 3. Safety
-        # Cash Ratio -> Maximize
-        norm_cash = utils.normalize(filtered_df['Cash_Ratio'])
-        
-        # Debt Ratio -> Minimize (1 - Norm)
-        norm_debt = 1 - utils.normalize(filtered_df['Debt_to_Revenue'])
-        
-        # Risk -> Minimize (1 - Norm)
-        norm_risk = 1 - utils.normalize(filtered_df['Bankruptcy_Rate']) # or Risk_Per_1000
-        
-        norm_safety = (norm_cash + norm_debt + norm_risk) / 3
-        
-        # Weighted Sum
-        total_weight = w_growth + w_profit + w_safety
-        if total_weight == 0: total_weight = 1 # Avoid div/0
-        
-        filtered_df['Stability_Score'] = (
-            (w_growth * norm_growth) + 
-            (w_profit * norm_profitability) + 
-            (w_safety * norm_safety)
-        ) / total_weight * 100
-        
-    st.info("💡 **Instrukcja:** Kliknij w bąbelek na wykresie, aby zobaczyć debatę Zarządu.")
-    st.caption(f"Dane dla roku: {selected_year}. Liczba branż: {len(filtered_df)}")
+        # Recalculate scores using the same logic as the forecast
+        filtered_df = utils.recalculate_future_st_scores(
+            filtered_df, 
+            w_growth=w_growth, 
+            w_profit=w_profit, 
+            w_safety=w_safety
+        )
+         
+        st.info("💡 **Instrukcja:** Kliknij w bąbelek na wykresie, aby zobaczyć debatę Zarządu.")
+        st.caption(f"Dane dla roku: {selected_year}. Liczba branż: {len(filtered_df)}")
 
 
 # --- HELPER: AGGREGATES DISPLAY ---
@@ -592,27 +568,66 @@ while current_selection_pkd and level_depth < max_depth:
             # Prepare Forecasts for Key Metrics
             # We predict 2 years ahead (2025-2026)
             
-            # 1. Rentowność (Marża Netto)
-            df_profit = utils.calculate_forecast(hist_df, 'Net_Profit_Margin', years_ahead=2)
-            fig_profit = charts.create_historical_chart(df_profit, 'Net_Profit_Margin', 'Rentowność (Marża)', 'Marża %', is_percent=False)
-
-            # 2. Zadłużenie (Dług / Przychody)
-            # Ensure col exists
+            # Prepare Forecasts for Key Metrics (2025-2026)
+            # We need a Master Forecast DF with all metrics to recalculate S&T Scores
+            
+            # 1. Initialize Master with Anchor Metric
+            # Ensure derived columns exist
             if 'Debt_to_Revenue' not in hist_df.columns:
                  hist_df['Debt_to_Revenue'] = hist_df['Total_Debt'] / hist_df['Revenue']
-            df_debt = utils.calculate_forecast(hist_df, 'Debt_to_Revenue', years_ahead=2)
-            fig_debt = charts.create_historical_chart(df_debt, 'Debt_to_Revenue', 'Zadłużenie (Debt/Rev)', 'x', is_percent=False)
             
-            # 3. Płynność (Cash Ratio)
-            df_cash = utils.calculate_forecast(hist_df, 'Cash_Ratio', years_ahead=2)
-            fig_cash = charts.create_historical_chart(df_cash, 'Cash_Ratio', 'Płynność (Gotówka)', 'Ratio', is_percent=False)
+            # List of metrics to forecast
+            metrics_to_forecast = [
+                'Net_Profit_Margin', 'Debt_to_Revenue', 'Cash_Ratio', 'Bankruptcy_Rate',
+                'Dynamics_YoY', 'Profitability', 'Capex_Intensity', 'Arxiv_Papers'
+            ]
             
-            # 4. Ryzyko (Upadłość)
-            df_risk = utils.calculate_forecast(hist_df, 'Bankruptcy_Rate', years_ahead=2)
-            fig_risk_chart = charts.create_historical_chart(df_risk, 'Bankruptcy_Rate', 'Ryzyko Upadłości', '% Firm', is_percent=False)
+            # Initialize df_final with the first metric to set up the skeleton (rows)
+            df_final = utils.calculate_forecast(hist_df, metrics_to_forecast[0], years_ahead=2)
             
-            # Display in Grid
-            t1, t2 = st.tabs(["📊 Finanse", "🛡️ Ryzyko"])
+            # Loop through the rest and fill in
+            for metric in metrics_to_forecast[1:]:
+                # We forecast based on the HISTORY PART only
+                df_hist_only = df_final[df_final['Is_Forecast'] == False].copy()
+                
+                # Special handling for Arxiv: AI Hype is recent (2019+)
+                # If we train on 2005-2024 (mostly zeros), the trendline will be flattened.
+                # Train only on recent years to capture the "Hype".
+                if metric == 'Arxiv_Papers':
+                     df_hist_only = df_hist_only[df_hist_only['Year'] >= 2019]
+                
+                # Run forecast
+                df_temp = utils.calculate_forecast(df_hist_only, metric, years_ahead=2)
+                
+                # Assign the forecast values to our master DF
+                # Use careful assignment by Year to match rows
+                for idx, row in df_temp[df_temp['Is_Forecast'] == True].iterrows():
+                     yr = row['Year']
+                     val = row[metric]
+                     mask = (df_final['Year'] == yr) & (df_final['Is_Forecast'] == True)
+                     df_final.loc[mask, metric] = val
+
+            # 2. Recalculate S&T Scores based on forecasted metrics
+            # NOW DYNAMIC: Passing weights from Sidebar Sliders
+            df_final = utils.recalculate_future_st_scores(
+                df_final, 
+                w_growth=w_growth, 
+                w_profit=w_profit, 
+                w_safety=w_safety
+            )
+            
+            # 3. Create Charts
+            fig_profit = charts.create_historical_chart(df_final, 'Net_Profit_Margin', 'Rentowność (Marża)', 'Marża %', is_percent=False)
+            fig_debt = charts.create_historical_chart(df_final, 'Debt_to_Revenue', 'Zadłużenie (Debt/Rev)', 'x', is_percent=False)
+            fig_cash = charts.create_historical_chart(df_final, 'Cash_Ratio', 'Płynność (Gotówka)', 'Ratio', is_percent=False)
+            fig_risk_chart = charts.create_historical_chart(df_final, 'Bankruptcy_Rate', 'Ryzyko Upadłości', '% Firm', is_percent=False)
+            
+            # New S&T Time Chart
+            # Now showing Stability & Transformation over Time (Lines) instead of Matrix Trajectory
+            fig_st_time = charts.create_st_time_chart(df_final)
+
+            # 4. Display in Tabs
+            t1, t2, t3 = st.tabs(["📊 Finanse", "🛡️ Ryzyko", "🧭 Strategia (S&T)"])
             
             with t1:
                 st.plotly_chart(fig_profit, use_container_width=True, key=f"p_hist_{level_depth}_{current_selection_pkd}")
@@ -621,6 +636,10 @@ while current_selection_pkd and level_depth < max_depth:
             with t2:
                 st.plotly_chart(fig_risk_chart, use_container_width=True, key=f"r_hist_{level_depth}_{current_selection_pkd}")
                 st.plotly_chart(fig_cash, use_container_width=True, key=f"c_hist_{level_depth}_{current_selection_pkd}")
+                
+            with t3:
+                st.caption("Ewolucja wyników Stability & Transformation (2019-2026).")
+                st.plotly_chart(fig_st_time, use_container_width=True, key=f"st_time_{level_depth}_{current_selection_pkd}")
     # 2. CHILDREN CHART
     next_selection = None
     with col_sub:

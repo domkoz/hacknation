@@ -178,7 +178,85 @@ def create_historical_chart(df, metric_col, title, y_axis_title, is_percent=Fals
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     
-    if is_percent:
-        fig.update_yaxes(tickformat=".0%")
+    return fig
+
+    return fig
+
+def create_st_time_chart(df):
+    """
+    Creates a time series chart showing S&T score history and forecast.
+    X-Axis: Year
+    Y-Axis: Score (0-100)
+    Two lines: Stability and Transformation.
+    """
+    fig = go.Figure()
+    
+    if df.empty: return fig
+    
+    # Sort by Year
+    df = df.sort_values('Year')
+    
+    # Split Real vs Forecast for distinct styling (solid vs dot)
+    # Actually, simpler to just plot lines with different styling if possible, 
+    # but creating separate traces for Real vs Forecast is clearer.
+    
+    if 'Is_Forecast' not in df.columns:
+        df['Is_Forecast'] = False
+        
+    real_df = df[df['Is_Forecast'] == False]
+    forecast_df = df[df['Is_Forecast'] == True]
+    
+    # Bridge the gap
+    if not real_df.empty and not forecast_df.empty:
+        last_real = real_df.iloc[-1]
+        forecast_df = pd.concat([pd.DataFrame([last_real]), forecast_df], ignore_index=True)
+
+    # --- STABILITY SCORE ---
+    # Real
+    fig.add_trace(go.Scatter(
+        x=real_df['Year'], y=real_df['Stability_Score'],
+        mode='lines+markers', name='Stability (Real)',
+        line=dict(color='#29b6f6', width=3),
+        marker=dict(size=8)
+    ))
+    # Forecast
+    if not forecast_df.empty:
+        fig.add_trace(go.Scatter(
+            x=forecast_df['Year'], y=forecast_df['Stability_Score'],
+            mode='lines+markers', name='Stability (Prognoza)',
+            line=dict(color='#29b6f6', width=3, dash='dot'),
+            marker=dict(size=8, symbol='diamond-open'),
+            showlegend=False # Avoid clutter, or keep if clear
+        ))
+
+    # --- TRANSFORMATION SCORE ---
+    # Real
+    fig.add_trace(go.Scatter(
+        x=real_df['Year'], y=real_df['Transformation_Score'],
+        mode='lines+markers', name='Transformation (Real)',
+        line=dict(color='#ab47bc', width=3),
+        marker=dict(size=8)
+    ))
+    # Forecast
+    if not forecast_df.empty:
+        fig.add_trace(go.Scatter(
+            x=forecast_df['Year'], y=forecast_df['Transformation_Score'],
+            mode='lines+markers', name='Transformation (Prognoza)',
+            line=dict(color='#ab47bc', width=3, dash='dot'),
+            marker=dict(size=8, symbol='diamond-open'),
+            showlegend=False
+        ))
+
+    fig.update_layout(
+        title="Ewolucja Wyników S&T (2019-2026)",
+        xaxis_title="Rok",
+        yaxis_title="Wynik Punktowy (0-100)",
+        yaxis=dict(range=[0, 100], showgrid=True, gridcolor='rgba(128,128,128,0.2)'),
+        height=400,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="white"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
         
     return fig

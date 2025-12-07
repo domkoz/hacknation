@@ -28,12 +28,20 @@ SECTION_MAP = {
     'SEK_S': "service industry"
 }
 
-CACHE_FILE = 'data/arxiv_hype.json'
+CACHE_FILE = 'data/arxiv_daily_hype.json'
 
-def fetch_arxiv_count(query):
-    # Search for "AI" AND "Keyword" in Title or Abstract
+def fetch_arxiv_count(query, year=None):
+    # Search for "AI" AND "Keyword"
     base_url = 'http://export.arxiv.org/api/query?'
     search_query = f'all:"artificial intelligence" AND all:"{query}"'
+    
+    # Add Date Filter if year is provided
+    if year:
+        # Date format: YYYYMMDDHHMM
+        start_date = f"{year}01010000"
+        end_date = f"{year}12312359"
+        search_query += f' AND submittedDate:[{start_date} TO {end_date}]'
+        
     encoded_query = urllib.parse.quote(search_query)
     
     url = f'{base_url}search_query={encoded_query}&start=0&max_results=1'
@@ -48,39 +56,48 @@ def fetch_arxiv_count(query):
                 return int(total_results.text)
             return 0
     except Exception as e:
-        print(f"Error fetching {query}: {e}")
+        print(f"Error fetching {query} ({year}): {e}")
         return 0
 
 def run_scraper():
-    print("🚀 Starting ArXiv Hype Scraper...")
+    print("🚀 Starting ArXiv Temporal Scraper (2019-2025)...")
     
     results = {}
+    years = range(2019, 2026) # 2019 to 2025 inclusive
     
     # Check cache first
     try:
         if os.path.exists(CACHE_FILE):
              with open(CACHE_FILE, 'r') as f:
                  results = json.load(f)
-             print(f"Loaded {len(results)} metrics from cache.")
+             print(f"Loaded cache with {len(results)} sections.")
     except:
         pass
 
     for section_code, keyword in SECTION_MAP.items():
-        if section_code in results:
-            print(f"Skipping {section_code} (Cached): {results[section_code]} papers")
-            continue
+        if section_code not in results:
+            results[section_code] = {}
             
-        print(f"Querying ArXiv for: AI + {keyword}...")
-        count = fetch_arxiv_count(keyword)
-        results[section_code] = count
-        print(f"Found: {count} papers")
+        print(f"--- Processing {section_code} ({keyword}) ---")
         
-        # Rate limit friendly (3s)
-        time.sleep(3)
-        
-        # Save incrementally
+        for year in years:
+            year_str = str(year)
+            if year_str in results[section_code]:
+                print(f"  {year}: {results[section_code][year_str]} (Cached)")
+                continue
+
+            count = fetch_arxiv_count(keyword, year)
+            results[section_code][year_str] = count
+            print(f"  {year}: {count} papers")
+            
+            # Rate limit friendly (3s)
+            time.sleep(3)
+            
+        # Save incrementally after each section
         with open(CACHE_FILE, 'w') as f:
             json.dump(results, f, indent=2)
+            
+    print("✅ ArXiv Scraper Finished.")
             
     print("✅ ArXiv Scraper Finished.")
 
