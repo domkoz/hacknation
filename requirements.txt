@@ -1,7 +1,8 @@
-pandas
 streamlit
+pandas
 plotly
-google-generativeai
+numpy
 python-dotenv
-
-matplotlib
+google-generativeai
+watchdog
+requests
