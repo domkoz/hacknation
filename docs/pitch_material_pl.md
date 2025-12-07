@@ -1,9 +1,6 @@
 # 🦅 HackNation Pitch Deck Material
 **Nazwa Projektu:** Industrial Risk Monitor (S\&T Dashboard)
 **Tagline:** "Nie zgaduj przyszłości – oblicz ją."
-
-Ten dokument zawiera gotowe wsady do slajdów prezentacji, skrypt demo oraz "Unique Selling Points" (USP) Twojego rozwiązania.
-
 ---
 
 ## 1. Problem & Rozwiązanie (The Why)
