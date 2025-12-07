@@ -9,24 +9,24 @@ Aplikacja analityczna klasy Enterprise Grade służąca do oceny ryzyka i potenc
 ## 🚀 Kluczowe Funkcje
 
 ### 1. 📊 Stability & Transformation Index (S&T Score)
-Unikalny model ratingowy oceniający każdą branżę (PKD) w dwóch wymiarach:
+Unikalny model ratingowy oceniający każdą branży (PKD) w dwóch wymiarach:
 *   **Stability Score (Fundament):** Agreguje **zyskowność, dynamikę wzrostu, bezpieczeństwo długu i płynność**. Pozwala zidentyfikować "bezpieczne przystanie".
-*   **Innovation Index (Transformacja):** Agreguje **intensywność inwestycyjną (Capex)** oraz **potencjał naukowy (ArXiv AI Papers)**. Wskazuje liderów przyszłości.
+*   **Innovation Index (Transformacja):** Agreguje **intensywność inwestycyjną (Capex)** oraz **dynamikę adopcji AI (ArXiv Papers)**. Wskazuje liderów przyszłości.
+    *   *New:* **Temporal Innovation Data:** Analiza trendów publikacji naukowych rok-do-roku (2019-2025).
 
 ### 2. 🧠 Local AI "Credit Committee" (Ollama)
-Wbudowany system AI symulujący posiedzenie komitetu kredytowego. Działa **lokalnie i offline** (bez limitów API).
-*   **CRO (Chief Risk Officer):** Analizuje ryzyko upadłości i zadłużenie.
-*   **CSO (Chief Strategy Officer):** Ocenia potencjał wzrostu i innowacji.
-*   **Werdykt Bankowy:** Konkretna rekomendacja: `INCREASE EXPOSURE`, `MAINTAIN`, `MONITOR`, lub `DECREASE EXPOSURE`.
+Wbudowany system AI symulujący posiedzenie komitetu kredytowego.
+*   **CRO & CSO Debate:** Dyskurs między ryzykiem a strategią.
+*   **Werdykt Bankowy:** Konkretna rekomendacja (np. `INCREASE EXPOSURE`).
 
 ### 3. 📈 Forecasting Engine 2026
-Moduł predykcyjny wykorzystujący regresję liniową na danych 2018-2024 do prognozowania przychodów na lata **2025-2026**.
+Moduł predykcyjny wykorzystujący regresję liniową oraz filtry "AI Hype" do prognozowania:
+*   Wyników finansowych (Przychody, Marża).
+*   Pozycji S&T w przyszłości (Dynamiczne ścieżki na wykresie).
 
-### 4. 💸 Lending Opportunity Score
-Dedykowany wskaźnik dla bankowości korporacyjnej. Identyfikuje branże z "Sweet Spot":
-*   Wysoki popyt na kapitał (Inwestycje).
-*   Wysoka stabilność finansowa.
-*   Bezpieczna płynność.
+### 4. 🔍 Deep Analytics & Drill-Down
+*   **Interaktywny Dashboard:** Kliknij w branżę, aby zobaczyć szczegóły.
+*   **Szczegółowe Wskaźniki:** Analiza upadłości, płynności i zadłużenia na poziomie sub-sektorów.
 
 ---
 

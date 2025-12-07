@@ -3,7 +3,21 @@ import numpy as np
 import pandas as pd
 
 def create_risk_radar_chart(df):
-    """Creates the Debt vs Risk Radar Chart."""
+    """
+    Creates the Debt vs Risk Radar Chart (Scatter).
+    
+    Axes:
+        X: Debt to Revenue (Leverage).
+        Y: Bankruptcy Rate (Risk).
+        Color: Revenue Dynamics (YoY Growth).
+        Size: Revenue.
+        
+    Args:
+        df (pd.DataFrame): Data containing Debt, Revenue, Bankruptcy_Rate, etc.
+        
+    Returns:
+        go.Figure: Plotly figure object.
+    """
     fig_risk = go.Figure()
     
     if df.empty: return fig_risk
@@ -61,7 +75,22 @@ def create_risk_radar_chart(df):
     return fig_risk
 
 def create_main_bubble_chart(df, max_revenue_global=None):
-    """Creates the S&T Matrix Bubble Chart."""
+    """
+    Creates the main S&T Matrix Bubble Chart.
+    
+    Axes:
+        X: Stability Score (Profit, Growth, Safety).
+        Y: Transformation Score (Capex, Innovation).
+        Color: Status (Opportunity, Warning, Neutral).
+        Size: Revenue.
+    
+    Args:
+        df (pd.DataFrame): Data with pre-calculated Stability/Transformation Scores.
+        max_revenue_global (float, optional): Max revenue for scaling bubble sizes consistently. 
+        
+    Returns:
+        go.Figure: Plotly figure object.
+    """
     fig = go.Figure()
     
     if df.empty: return fig

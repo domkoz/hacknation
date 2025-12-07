@@ -60,8 +60,16 @@ import numpy as np
 
 def calculate_forecast(df_history, target_col, years_ahead=2):
     """
-    Calculates linear forecast for the next 'years_ahead' years.
-    Returns a DataFrame with historical + forecast rows.
+    Calculates linear forecast for the next 'years_ahead' years using OLS regression.
+    
+    Args:
+        df_history (pd.DataFrame): DataFrame containing historical data. Must have 'Year' and target_col.
+        target_col (str): The column name to forecast.
+        years_ahead (int): Number of years to predict into the future.
+        
+    Returns:
+        pd.DataFrame: A DataFrame containing the original history PLUS new rows for the forecast years.
+                      New rows have 'Is_Forecast' = True.
     """
     # 1. Prepare Data
     df = df_history.copy().sort_values('Year')
@@ -123,19 +131,26 @@ def calculate_forecast(df_history, target_col, years_ahead=2):
 def recalculate_future_st_scores(df_full, w_growth=4.0, w_profit=6.0, w_safety=3.0):
     """
     Recalculates Stability and Transformation scores for Forecast years.
-    Uses normalization bounds from the LAST REAL YEAR (2024) to ensure comparability.
-    Assumes df_full contains both history and forecast rows.
+    
+    This function applies the S&T scoring model to a DataFrame (typically containing both history and forecast rows).
+    It uses NORMALIZED BOUNDS (hardcoded approximations of market range) to ensure that the scoring is absolute
+    and comparable across time.
+    
+    Args:
+        df_full (pd.DataFrame): DataFrame containing metrics (Dynamics_YoY, Net_Profit_Margin, etc.)
+        w_growth (float): Weight for Growth component (Growth).
+        w_profit (float): Weight for Profitability component (Margin + % Profitable).
+        w_safety (float): Weight for Safety component (Cash + Debt + Risk).
+        
+    Returns:
+        pd.DataFrame: The input DataFrame with updated 'Stability_Score' and 'Transformation_Score' columns.
     """
     df = df_full.copy()
     
     # Identify Real vs Forecast
     if 'Is_Forecast' not in df.columns: return df
     
-    # We need reference bounds (min/max) from REAL DATA (e.g. 2024 context)
-    # Ideally, we should normalize against the whole market in that year, but for a single-industry forecast,
-    # we can use the industry's own historical range OR assuming standard 0-1 scaling if variables are ratios.
-    # BETTER APPROACH: Use pre-calculated columns if available? No, forecast rows miss them.
-    # WE WILL USE ABSOLUTE SCORING RULES for Forecasts to be safe.
+    # We use ABSOLUTE SCORING RULES for Forecasts to be safe and consistent.
     
     # Define Weights (Passed as arguments)
     # Default values match default slider values
