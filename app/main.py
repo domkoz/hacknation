@@ -118,10 +118,48 @@ with st.sidebar:
     # Let's try to extract Sector from Industry Name to make it cooler or just show top 100 to avoid lag.
     
     # Ensure Sector column exists, if not fill it
-    if 'Sector' not in df.columns:
-        df['Sector'] = 'All'
+    # Ensure Sector column exists or populate it dynamically
+    # This logic maps every PKD code to its parent Macro Section (e.g. 41.20 -> Section F Construction)
+    if 'Sector' not in df.columns or df['Sector'].iloc[0] == 'All':
+        # 1. Define Ranges
+        ranges = {
+            'A': (1, 3), 'B': (5, 9), 'C': (10, 33), 'D': (35, 35), 'E': (36, 39),
+            'F': (41, 43), 'G': (45, 47), 'H': (49, 53), 'I': (55, 56), 'J': (58, 63),
+            'K': (64, 66), 'L': (68, 68), 'M': (69, 75), 'N': (77, 82), 'O': (84, 84),
+            'P': (85, 85), 'Q': (86, 88), 'R': (90, 93), 'S': (94, 96)
+        }
         
-    unique_sectors = sorted(df['Sector'].unique())
+        # 2. Get Section Names Map (Code -> Name) for clean display
+        # We look at global df_all to ensure we have the names even if current year is filtered
+        section_rows = df_all[df_all['PKD_Code'].astype(str).str.startswith('SEK_')]
+        # Create map: "A" -> "ROLNICTWO...", "B" -> "GÓRNICTWO..."
+        section_map = {}
+        for _, row in section_rows.iterrows():
+            code = str(row['PKD_Code']) # SEK_A
+            letter = code.split('_')[1]
+            name = row['Industry_Name']
+            section_map[letter] = f"{letter} - {name}"
+
+        # 3. Helper to find sector
+        def find_sector(pkd):
+            pkd = str(pkd)
+            if pkd.startswith('SEK_'):
+                letter = pkd.split('_')[1]
+                return section_map.get(letter, pkd)
+            
+            # Numeric
+            try:
+                digits = int(pkd[:2])
+                for letter, (start, end) in ranges.items():
+                    if start <= digits <= end:
+                        return section_map.get(letter, f"Sekcja {letter}")
+            except:
+                pass
+            return "Inne"
+
+        df['Sector'] = df['PKD_Code'].apply(find_sector)
+        
+    unique_sectors = sorted(df['Sector'].dropna().unique())
     selected_sector = st.selectbox("Wybierz Sektor:", ["Wszystkie"] + list(unique_sectors))
     
     if selected_sector != "Wszystkie":
@@ -347,18 +385,19 @@ with col_details:
     st.subheader("AI Boardroom")
     
     # Check if a point is selected
+    # Check if a point is selected
     selection = st.session_state.get("bubble_chart", {}).get("selection", {}).get("points", [])
     
     selected_pkd = None
     selected_row = None
     
+    # 1. Chart Selection Priority
     if selection:
         point = selection[0]
         x_val = point['x']
         y_val = point['y']
         
         # Find exact match
-        # Note: filtered_df matches the chart.
         possible_rows = filtered_df[
             (abs(filtered_df['Stability_Score'] - x_val) < 0.001) & 
             (abs(filtered_df['Transformation_Score'] - y_val) < 0.001)
@@ -367,87 +406,130 @@ with col_details:
         if not possible_rows.empty:
             selected_row = possible_rows.iloc[0]
             selected_pkd = str(selected_row['PKD_Code'])
-            industry_name = selected_row['Industry_Name']
             
-            st.markdown(f"#### {industry_name}")
-            st.caption(f"PKD: {selected_pkd}")
+    # 2. Fallback: Auto-select Sector if no point clicked but Sector Filter is active
+    elif selected_sector != "Wszystkie":
+        # Extract Section Letter from "F - BUDOWNICTWO"
+        try:
+            sec_letter = selected_sector.split(' - ')[0] # "F"
+            target_pkd = f"SEK_{sec_letter}"
             
-            # Metrics Row
-            m1, m2 = st.columns(2)
-            m1.metric("Stability", f"{selected_row['Stability_Score']:.1f}", delta_color="normal")
-            m2.metric("Transformation", f"{selected_row['Transformation_Score']:.1f}", delta_color="normal")
+            # Find row for this Section (global lookup or filtered)
+            # We want the attributes of the Section itself.
+            # Usually 'filtered_df' might only contain children if level is drilled, 
+            # BUT if level is L1 (Sekcje), it's there. 
+            # If level is L2, the Section row is filtered out.
+            # So we look at 'df_all' for the Section row details.
             
-            # Detailed Breakdown
-            with st.expander("📊 Szczegóły Wyliczeń (Dynamiczne)"):
-                # Helper for colors
-                def color_val(val, inverse=False, is_percent=False):
-                    display_val = val * 100 if is_percent else val
-                    suffix = "%" if is_percent else ""
+            sec_row_df = df_all[(df_all['PKD_Code'] == target_pkd) & (df_all['Year'] == selected_year)]
+            if not sec_row_df.empty:
+                selected_row = sec_row_df.iloc[0]
+                selected_pkd = target_pkd
+        except:
+            pass
+            
+    # DISPLAY SELECTION DETAILS
+    if selected_row is not None:
+        industry_name = selected_row['Industry_Name']
+        selected_pkd = str(selected_row['PKD_Code'])
+        
+        st.markdown(f"#### {industry_name}")
+        st.caption(f"PKD: {selected_pkd}")
+        
+        # Metrics Row
+        m1, m2 = st.columns(2)
+        m1.metric("Stability", f"{selected_row.get('Stability_Score', 0):.1f}", delta_color="normal")
+        m2.metric("Transformation", f"{selected_row.get('Transformation_Score', 0):.1f}", delta_color="normal")
+        
+        # Detailed Breakdown
+        with st.expander("📊 Szczegóły Wyliczeń (Dynamiczne)"):
+            # Helper for colors
+            def color_val(val, inverse=False, is_percent=False):
+                display_val = val * 100 if is_percent else val
+                suffix = "%" if is_percent else ""
+                
+                if inverse:
+                    color = "#ff4b4b" if val > 0 else "#2ecc71" # Red if > 0 (Risk/Debt), Green if <= 0
+                else:
+                    color = "#2ecc71" if val > 0 else "#ff4b4b" # Green if > 0, Red if <= 0
                     
-                    if inverse:
-                        color = "#ff4b4b" if val > 0 else "#2ecc71" # Red if > 0 (Risk/Debt), Green if <= 0
-                    else:
-                        color = "#2ecc71" if val > 0 else "#ff4b4b" # Green if > 0, Red if <= 0
-                        
-                    # Neutral for 0
-                    if abs(val) < 0.0001: color = "#888"
-                        
-                    return f'<span style="color:{color}; font-weight:bold;">{display_val:+.2f}{suffix}</span>'
+                # Neutral for 0
+                if abs(val) < 0.0001: color = "#888"
+                    
+                return f'<span style="color:{color}; font-weight:bold;">{display_val:+.2f}{suffix}</span>'
 
-                st.markdown(f"""
-                **Twoje Wagi Stability Score:**
-                - Wzrost: {w_growth}
-                - Zyskowność: {w_profit}
-                - Bezpieczeństwo: {w_safety}
-                
-                **Składowe (Wartości Surowe):**
-                - Dynamika przychodów: {color_val(selected_row.get('Dynamics_YoY', 0), is_percent=True)}
-                - Marża Netto: {color_val(selected_row.get('Net_Profit_Margin', 0), is_percent=False)}%
-                - Zyskowność (% firm): {color_val(selected_row.get('Profitability', 0), is_percent=True)}
-                - Płynność (Cash Ratio): {color_val(selected_row.get('Cash_Ratio', 0), is_percent=False)}
-                - Zadłużenie (Debt/Rev): {color_val(selected_row.get('Debt_to_Revenue', 0), inverse=True)}x
-                - Ryzyko (Upadłości): {color_val(selected_row.get('Bankruptcy_Rate', 0), inverse=True, is_percent=False)}%
-                
-                **Transformacja (Inwestycje + Innowacje):**
-                - Nakłady: **{selected_row.get('Investment', 0):,.1f} mln PLN**
-                - Intensywność (Capex/Rev): {color_val(selected_row.get('Capex_Intensity', 0), is_percent=False)}%
-                - Innovation Index (ArXiv): **{int(selected_row.get('Arxiv_Papers', 0))}**
+            st.markdown(f"""
+            **Twoje Wagi Stability Score:**
+            - Wzrost: {w_growth}
+            - Zyskowność: {w_profit}
+            - Bezpieczeństwo: {w_safety}
+            
+            **Składowe (Wartości Surowe):**
+            - Dynamika przychodów: {color_val(selected_row.get('Dynamics_YoY', 0), is_percent=True)}
+            - Marża Netto: {color_val(selected_row.get('Net_Profit_Margin', 0), is_percent=False)}%
+            - Zyskowność (% firm): {color_val(selected_row.get('Profitability', 0), is_percent=True)}
+            - Płynność (Cash Ratio): {color_val(selected_row.get('Cash_Ratio', 0), is_percent=False)}
+            - Zadłużenie (Debt/Rev): {color_val(selected_row.get('Debt_to_Revenue', 0), inverse=True)}x
+            - Ryzyko (Upadłości): {color_val(selected_row.get('Bankruptcy_Rate', 0), inverse=True, is_percent=False)}%
+            
+            **Transformacja (Inwestycje + Innowacje):**
+            - Nakłady: **{selected_row.get('Investment', 0):,.1f} mln PLN**
+            - Intensywność (Capex/Rev): {color_val(selected_row.get('Capex_Intensity', 0), is_percent=False)}%
+            - Innovation Index (ArXiv): **{int(selected_row.get('Arxiv_Papers', 0))}**
 
-                ---
-                ### 🏦 Potencjał Kredytowy
-                **Lending Opportunity Score: {selected_row.get('Lending_Score', 0):.1f}/100**
-                *Miara atrakcyjności dla banku (Capex + Stability + Liquidity)*
-                """, unsafe_allow_html=True)
+            ---
+            ### 🏦 Potencjał Kredytowy
+            **Lending Opportunity Score: {selected_row.get('Lending_Score', 0):.1f}/100**
+            *Miara atrakcyjności dla banku (Capex + Stability + Liquidity)*
+            """, unsafe_allow_html=True)
+        
+        st.divider()
+        
+        # Debate Content
+        debate = debates.get(selected_pkd)
+        if debate:
+            st.markdown("### 🏛️ AI Boardroom")
             
-            st.divider()
+            specialist_op = debate.get('Specialist_Opinion', '')
+            if specialist_op:
+                with st.expander("👷 Opinia Specjalisty Branżowego", expanded=False):
+                    st.markdown(f"""
+                    <div class="specialist-bubble" style="margin-top: 0px;">
+                        "{specialist_op}"
+                    </div>
+                    """, unsafe_allow_html=True)
             
-            # Debate Content
-            debate = debates.get(selected_pkd)
-            if debate:
-                specialist_op = debate.get('Specialist_Opinion', '')
-                spec_html = ""
-                if specialist_op:
-                    spec_html = f"""<div class="specialist-bubble">
-                        <strong>&#128119; Specjalista Branżowy:</strong> "{specialist_op}"
-                    </div>"""
-                
+            # CRO
+            with st.expander("👩‍💼 Opinia CRO (Ryzyko)", expanded=False):
                 st.markdown(f"""
-                {spec_html}
-                <div class="cro-bubble"><strong>&#128105; CRO:</strong> "{debate.get('CRO_Opinion','')}"</div>
-                <div class="cso-bubble"><strong>&#128640; CSO:</strong> "{debate.get('CSO_Opinion','')}"</div>
-                <div class="verdict-box">WERDYKT: {debate.get('Final_Verdict','')}</div>
-                <div style="background-color: #f1c40f; padding: 5px; border-radius: 5px; margin-top: 5px; text-align: center; color: black; font-weight: bold;">
-                    BANK: {debate.get('Credit_Recommendation', 'DECISION_PENDING')}
-                </div>
-                <div style="text-align: center; font-style: italic; font-size: 0.9em; margin-top: 5px;">
-                    "{debate.get('Recommendation_Rationale', '')}"
+                <div class="cro-bubble" style="margin-top: 0px;">
+                    "{debate.get('CRO_Opinion','')}"
                 </div>
                 """, unsafe_allow_html=True)
-            else:
-                st.info("Brak debaty (AI odpoczywa).")
-                
+
+            # CSO
+            with st.expander("🚀 Opinia CSO (Strategia)", expanded=False):
+                st.markdown(f"""
+                <div class="cso-bubble" style="margin-top: 0px;">
+                    "{debate.get('CSO_Opinion','')}"
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Recommendation
+            st.markdown(f"""
+            <div class="verdict-box">WERDYKT: {debate.get('Final_Verdict','')}</div>
+            <div style="background-color: #f1c40f; padding: 5px; border-radius: 5px; margin-top: 5px; text-align: center; color: black; font-weight: bold;">
+                BANK: {debate.get('Credit_Recommendation', 'DECISION_PENDING')}
+            </div>
+            <div style="text-align: center; font-style: italic; font-size: 0.9em; margin-top: 5px;">
+                "{debate.get('Recommendation_Rationale', '')}"
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.info("Brak debaty (AI odpoczywa).")
+            
     else:
-        st.write("👈 Kliknij bąbelek!")
+        st.write("👈 Kliknij bąbelek lub wybierz Sektor!")
 
 # --- RECURSIVE DRILL DOWN SECTION ---
 current_selection_pkd = selected_pkd
