@@ -401,7 +401,7 @@ def create_stability_radar_chart(row, df_context):
         ),
         showlegend=False,
         height=300,
-        margin=dict(l=40, r=40, t=30, b=20),
+        margin=dict(l=40, r=40, t=60, b=20),
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="white"),
         title=dict(
